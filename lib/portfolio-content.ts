@@ -82,6 +82,7 @@ export const projects = [
       "Neural Rendering",
       "Robotics",
     ],
+    repositoryUrl: "https://github.com/Mastermind0100/syn-robot-control",
   },
   {
     id: "medical-image-generation",
@@ -117,6 +118,37 @@ export const projects = [
       "Synthetic Data",
       "Medical Computer Vision",
     ],
+  },
+  {
+    id: "optical-character-recognizer",
+    category: "COMPUTER VISION",
+    categoryColor: "sky" as const,
+    status: "OCR · Python",
+    title: "Optical Character Recognizer",
+    description:
+      "An OCR project that segments an image into individual characters, predicts each character with a pretrained model, and combines the predictions into text.",
+    overview:
+      "A Python computer-vision project for recognizing text in images. It divides the image into character segments, classifies each segment with a pretrained model, and assembles the predictions into a text string. The repository notes that it does not automatically detect spaces between words.",
+    highlights: [
+      {
+        title: "Character segmentation",
+        description:
+          "Splits an input image into segments, each intended to contain an individual character.",
+      },
+      {
+        title: "Pretrained character recognition",
+        description:
+          "Runs a pretrained model on each character segment and predicts the character.",
+      },
+      {
+        title: "Trainable model workflow",
+        description:
+          "Includes a model script and describes training with a custom dataset.",
+      },
+    ],
+    tags: ["OCR", "Python", "Computer Vision", "Image Processing"],
+    repositoryUrl:
+      "https://github.com/Mastermind0100/Optical-Character-Recognizer",
   },
 ];
 
@@ -173,6 +205,34 @@ export const skillGroups = [
     icon: "code",
     description: "Languages used across AI research and engineering projects.",
     tags: ["Python", "C", "C++", "TypeScript", "JavaScript", "Java", "Go"],
+  },
+  {
+    title: "Computer Vision & Robotics",
+    icon: "precision_manufacturing",
+    description:
+      "Visual recognition and perception systems, including projects linking vision to robot actions.",
+    tags: [
+      "Computer Vision",
+      "OCR",
+      "License Plate Recognition",
+      "Image Processing",
+      "Depth Estimation",
+      "Robotics",
+    ],
+  },
+  {
+    title: "AI Products & Information Retrieval",
+    icon: "search",
+    description:
+      "Applied AI systems and search pipelines built for enterprise workflows.",
+    tags: [
+      "Information Retrieval",
+      "Resume Parsing",
+      "Entity Extraction",
+      "Ranking",
+      "Japanese NLP",
+      "Full-Stack AI",
+    ],
   },
 ];
 

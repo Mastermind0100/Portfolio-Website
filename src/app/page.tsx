@@ -261,7 +261,7 @@ export default function Home() {
           </a>
           <nav aria-label="Main navigation">
             <a href="#terminal">Ask me</a>
-            <a href="#portfolio">Projects</a>
+            <a href="#projects">Projects</a>
             <a href="#stack-matrix">Expertise</a>
             <a href="#timeline">Experience</a>
             <a href="#publications">Publications</a>
@@ -389,12 +389,49 @@ export default function Home() {
         </section>
 
         <section className="content-section" id="portfolio">
-          <section className="content-block">
+          <section className="content-block" id="timeline">
+            <SectionHeading
+              eyebrow="CAREER HISTORY"
+              title="Work Experience"
+              subtitle="Research, product engineering, and internships as listed in my resume."
+            />
+            <div className="timeline">
+              {experience.map((item) => (
+                <TimelineItem key={`${item.company}-${item.role}`} {...item} />
+              ))}
+            </div>
+          </section>
+
+          <div className="divider" />
+
+          <section className="content-block" id="education">
+            <SectionHeading
+              eyebrow="EDUCATION"
+              title="Education"
+            />
+            <div className="education-grid">
+              {education.map((item) => (
+                <article className="education-card" key={item.institution}>
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    school
+                  </span>
+                  <span className="timeline-date">{item.date}</span>
+                  <h3>{item.degree}</h3>
+                  <p>{item.institution}</p>
+                  <span className="timeline-location">{item.location}</span>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <div className="divider" />
+
+          <section className="content-block" id="projects">
             <SectionHeading
               eyebrow="RESEARCH & ENGINEERING"
               title="Selected Projects"
               count={`${projects.length} PROJECTS`}
-              subtitle="Work across agentic retrieval, multimodal robotics, and generative modeling, including a medical-imaging application."
+              subtitle="Explore projects across agentic retrieval, multimodal robotics, generative modeling, and computer vision."
             />
             <div className="project-grid">
               {projects.map((item) => (
@@ -434,42 +471,17 @@ export default function Home() {
                 </button>
               ))}
             </div>
-          </section>
-
-          <div className="divider" />
-
-          <section className="content-block" id="stack-matrix">
-            <SectionHeading
-              eyebrow="TECHNICAL EXPERTISE"
-              title="Skills & Tools"
-              subtitle="Skills and technologies listed in my resume, grouped by the work they support."
-            />
-            <div className="stack-grid">
-              {skillGroups.map((group) => (
-                <StackCard
-                  key={group.title}
-                  title={group.title}
-                  icon={group.icon}
-                  description={group.description}
-                  tags={group.tags}
-                />
-              ))}
-            </div>
-          </section>
-
-          <div className="divider" />
-
-          <section className="content-block" id="timeline">
-            <SectionHeading
-              eyebrow="CAREER HISTORY"
-              title="Experience"
-              subtitle="Research, product engineering, and internships as listed in my resume."
-            />
-            <div className="timeline">
-              {experience.map((item) => (
-                <TimelineItem key={`${item.company}-${item.role}`} {...item} />
-              ))}
-            </div>
+            <a
+              className="github-projects-link"
+              href={profile.github}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span className="material-symbols-outlined" aria-hidden="true">
+                open_in_new
+              </span>
+              Explore more projects on GitHub
+            </a>
           </section>
 
           <div className="divider" />
@@ -514,65 +526,63 @@ export default function Home() {
               ))}
             </div>
           </section>
-
           <div className="divider" />
 
-          <section className="content-block" id="education">
+          <section className="content-block" id="stack-matrix">
             <SectionHeading
-              eyebrow="EDUCATION"
-              title="Academic Background"
+              eyebrow="TECHNICAL EXPERTISE"
+              title="Skills & Tools"
+              subtitle="Skills and technologies listed in my resume, grouped by the work they support."
             />
-            <div className="education-grid">
-              {education.map((item) => (
-                <article className="education-card" key={item.institution}>
-                  <span className="material-symbols-outlined" aria-hidden="true">
-                    school
-                  </span>
-                  <span className="timeline-date">{item.date}</span>
-                  <h3>{item.degree}</h3>
-                  <p>{item.institution}</p>
-                  <span className="timeline-location">{item.location}</span>
-                </article>
+            <div className="stack-grid">
+              {skillGroups.map((group) => (
+                <StackCard
+                  key={group.title}
+                  title={group.title}
+                  icon={group.icon}
+                  description={group.description}
+                  tags={group.tags}
+                />
               ))}
             </div>
           </section>
 
           <section className="contact-panel" id="contact">
-            <div className="contact-copy">
+            <div className="contact-heading">
               <span className="eyebrow">GET IN TOUCH</span>
               <h2>Let&apos;s connect</h2>
               <p>
-                For questions about my research or engineering experience, reach
-                out by email or connect with me on GitHub or LinkedIn.
+                Want to discuss AI research, engineering, or an opportunity?
+                Choose the best way to reach me below.
               </p>
-              <div className="social-block">
-                <span className="eyebrow">CONTACT & PROFILES</span>
-                <div className="socials">
-                  <a
-                    href={profile.github}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="material-symbols-outlined">code</span>
-                    GitHub
-                  </a>
-                  <a
-                    href={profile.linkedin}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="material-symbols-outlined">work</span>
-                    LinkedIn
-                  </a>
-                </div>
-                <a className="email-link" href={`mailto:${profile.email}`}>
-                  <span className="material-symbols-outlined">mail</span>
-                  {profile.email}
-                </a>
-              </div>
-              <a className="back-top" href="#terminal">
-                <span className="material-symbols-outlined">arrow_upward</span>
-                Back to chat
+            </div>
+            <div className="contact-actions">
+              <a href={profile.github} target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.76-1.32-3.76-1.32-.5-1.29-1.24-1.63-1.24-1.63-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 .1.61 2.6 3.42 1.86.1-.72.39-1.22.7-1.5-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.21 1.15-2.99-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.53.23 2.67.11 2.95.72.78 1.15 1.77 1.15 2.99 0 4.29-2.61 5.24-5.1 5.51.4.35.75 1.02.75 2.06v3.05c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"
+                  />
+                </svg>
+                <strong>GitHub</strong>
+                <span>View my code and projects</span>
+              </a>
+              <a href={profile.linkedin} target="_blank" rel="noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M20.45 2H3.55C2.69 2 2 2.68 2 3.52v16.96c0 .84.69 1.52 1.55 1.52h16.9c.86 0 1.55-.68 1.55-1.52V3.52c0-.84-.69-1.52-1.55-1.52ZM7.93 18.8H4.96V9.24h2.97v9.56ZM6.45 7.93a1.72 1.72 0 1 1 0-3.44 1.72 1.72 0 0 1 0 3.44ZM19.04 18.8h-2.97v-4.65c0-1.11-.02-2.54-1.55-2.54-1.55 0-1.79 1.21-1.79 2.46v4.73H9.76V9.24h2.85v1.31h.04c.4-.75 1.37-1.55 2.82-1.55 3.02 0 3.57 1.99 3.57 4.58v5.22Z"
+                  />
+                </svg>
+                <strong>LinkedIn</strong>
+                <span>Connect with me professionally</span>
+              </a>
+              <a href={`mailto:${profile.email}`}>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  mail
+                </span>
+                <strong>Email</strong>
+                <span>{profile.email}</span>
               </a>
             </div>
             <div className="contact-bottom">
@@ -628,6 +638,19 @@ export default function Home() {
             </div>
             <div className="modal-title-row">
               <h2 id="modal-title">{project.title}</h2>
+              {"repositoryUrl" in project && project.repositoryUrl && (
+                <a
+                  className="modal-repository-link"
+                  href={project.repositoryUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    open_in_new
+                  </span>
+                  View repository
+                </a>
+              )}
             </div>
             <div className="modal-section">
               <span className="eyebrow">PROJECT OVERVIEW</span>
