@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Atharva Hudlikar",
-  description: "The Portfolio of an AI Developer, Robotics Enthusiast and Passionate Engineer :)",
+  title: "Atharva Hudlikar | AI Researcher & Engineer",
+  description:
+    "Explore Atharva Hudlikar's work across large language models, retrieval and agentic AI, multimodal systems, computer vision, robotics, and production machine learning.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
