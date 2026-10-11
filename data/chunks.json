@@ -1,0 +1,200 @@
+[
+  {
+    "id": "atharva-hudlikar-atharva-hudlikar-1",
+    "section": "Atharva Hudlikar",
+    "topic": "Atharva Hudlikar",
+    "text": "Based in Singapore  \r\nEmail: atharvahudlikar@gmail.com  \r\nLinkedIn: linkedin.com/in/atharva-hudlikar/  \r\nGitHub: github.com/Mastermind0100\r\n\r\n---"
+  },
+  {
+    "id": "professional-summary-professional-summary-2",
+    "section": "Professional Summary",
+    "topic": "Professional Summary",
+    "text": "Atharva Hudlikar is an AI researcher and engineer specializing in large language models, retrieval-augmented generation (RAG), multimodal AI, computer vision, and production machine learning systems.\r\n\r\nHis experience spans clinical AI research, enterprise AI products, AI infrastructure, information retrieval, generative models, and production ML deployment. He has worked on systems involving LLMs, vision models, structured data, agentic AI, and multimodal pipelines.\r\n\r\n---"
+  },
+  {
+    "id": "work-experience-ai-research-fellow-tan-tock-seng-hospital-proton-research-programme-3",
+    "section": "Work Experience",
+    "topic": "AI Research Fellow — Tan Tock Seng Hospital, PROTON Research Programme",
+    "text": "**May 2024 – Present**  \r\nLocation: Singapore\r\n\r\nAtharva leads AI research and production machine learning initiatives across LLM/RAG systems, multimodal AI, and clinical deployment. His responsibilities include defining system architecture, technical direction, implementation priorities, and translating research objectives into production-oriented engineering work."
+  },
+  {
+    "id": "work-experience-ai-research-fellow-tan-tock-seng-hospital-proton-research-programme-key-responsibilities-and-achievements-4",
+    "section": "Work Experience",
+    "topic": "AI Research Fellow — Tan Tock Seng Hospital, PROTON Research Programme — Key Responsibilities and Achievements",
+    "text": "- Leads AI research and production ML initiatives spanning **LLM/RAG systems, multimodal AI, and clinical deployment**.\r\n- Defines system architecture, technical direction, and implementation priorities across AI projects.\r\n- Leads development across interns and research staff, translating research objectives into production-oriented engineering tasks.\r\n- Coordinates delivery across projects with varying levels of technical complexity.\r\n- Deployed **Vision Transformer models into clinical workflows**, analyzing model performance and failure modes to improve production reliability.\r\n- Reduced infrastructure costs by approximately **40%** through production infrastructure optimization.\r\n- Designed and built an end-to-end **RAG platform** covering document parsing, embedding generation, retrieval, and ranking.\r\n- The RAG platform enables real-time knowledge access across **50+ global research teams**.\r\n- Built multimodal and agentic AI infrastructure integrating **vision, structured data, and multiple specialized AI models** for clinical research and decision-support workflows."
+  },
+  {
+    "id": "work-experience-ai-research-fellow-tan-tock-seng-hospital-proton-research-programme-key-responsibilities-and-achievements-technical-areas-5",
+    "section": "Work Experience",
+    "topic": "AI Research Fellow — Tan Tock Seng Hospital, PROTON Research Programme — Key Responsibilities and Achievements — Technical Areas",
+    "text": "- Large Language Models\r\n- Retrieval-Augmented Generation\r\n- Multimodal AI\r\n- Vision Transformers\r\n- Computer Vision\r\n- Agentic AI\r\n- Embeddings and Retrieval\r\n- Model Deployment\r\n- AWS\r\n- Production Machine Learning\r\n- ML Infrastructure\r\n\r\n---"
+  },
+  {
+    "id": "work-experience-ai-product-engineer-goalist-india-technologies-pvt-ltd-6",
+    "section": "Work Experience",
+    "topic": "AI Product Engineer — Goalist India Technologies Pvt. Ltd.",
+    "text": "**June 2021 – April 2023**  \r\nBangalore, India / Tokyo, Japan\r\n\r\nAtharva developed and deployed AI systems for enterprise workflows, working across machine learning, information retrieval, natural language processing, and full-stack AI applications."
+  },
+  {
+    "id": "work-experience-ai-product-engineer-goalist-india-technologies-pvt-ltd-key-responsibilities-and-achievements-7",
+    "section": "Work Experience",
+    "topic": "AI Product Engineer — Goalist India Technologies Pvt. Ltd. — Key Responsibilities and Achievements",
+    "text": "- Developed and fine-tuned **LLM and ML systems** for enterprise workflows.\r\n- Aligned model behavior with business requirements through iterative evaluation and error analysis.\r\n- Improved downstream decision-making through model evaluation and refinement.\r\n- Built an end-to-end **information retrieval and resume parsing platform**.\r\n- Optimized entity extraction and ranking pipelines for high-relevance search across multilingual Japanese-language data.\r\n- Led a team of **3 engineers** in developing a full-stack AI application.\r\n- Defined system architecture and integrated ML services into production user-facing workflows.\r\n- Worked directly with product and business stakeholders to translate ambiguous requirements into **production-ready AI systems**.\r\n- Made technical decisions and improved system reliability across client-facing deployments."
+  },
+  {
+    "id": "work-experience-ai-product-engineer-goalist-india-technologies-pvt-ltd-key-responsibilities-and-achievements-technical-areas-8",
+    "section": "Work Experience",
+    "topic": "AI Product Engineer — Goalist India Technologies Pvt. Ltd. — Key Responsibilities and Achievements — Technical Areas",
+    "text": "- LLMs\r\n- Machine Learning\r\n- Information Retrieval\r\n- Resume Parsing\r\n- Entity Extraction\r\n- Ranking\r\n- Natural Language Processing\r\n- Multilingual Japanese-language AI\r\n- Full-Stack AI Applications\r\n- Production ML Systems\r\n\r\n---"
+  },
+  {
+    "id": "internship-experience-ai-engineer-intern-mellonai-9",
+    "section": "Internship Experience",
+    "topic": "AI Engineer Intern — MellonAI",
+    "text": "**December 2019 – December 2020**  \r\nChennai, India\r\n\r\n- Led development of **3 AI-driven healthcare systems**, including head pose estimation, facial recognition, and emotion detection models.\r\n- Developed models using custom healthcare datasets.\r\n- Deployed production-ready computer vision systems adopted by partner hospitals.\r\n- Reduced operational waiting time by approximately **20%**.\r\n- Designed data pipelines for preprocessing, feature extraction, model training, and evaluation across healthcare datasets."
+  },
+  {
+    "id": "internship-experience-ai-engineer-intern-mellonai-technical-areas-10",
+    "section": "Internship Experience",
+    "topic": "AI Engineer Intern — MellonAI — Technical Areas",
+    "text": "- Computer Vision\r\n- Facial Recognition\r\n- Emotion Detection\r\n- Head Pose Estimation\r\n- Deep Learning\r\n- Healthcare AI\r\n- Data Preprocessing\r\n- Model Training and Evaluation\r\n\r\n---"
+  },
+  {
+    "id": "internship-experience-computer-vision-engineer-intern-alpha-ict-llp-11",
+    "section": "Internship Experience",
+    "topic": "Computer Vision Engineer Intern — Alpha ICT LLP",
+    "text": "**May 2019 – July 2019**  \r\nPune, India\r\n\r\n- Built end-to-end **OCR and Automatic License Plate Recognition (ALPR)** systems.\r\n- Used CNN-based architectures and custom image preprocessing pipelines.\r\n- Automated manual identification workflows.\r\n- Reduced annual operational costs by approximately **80%**."
+  },
+  {
+    "id": "internship-experience-computer-vision-engineer-intern-alpha-ict-llp-technical-areas-12",
+    "section": "Internship Experience",
+    "topic": "Computer Vision Engineer Intern — Alpha ICT LLP — Technical Areas",
+    "text": "- Optical Character Recognition\r\n- Automatic License Plate Recognition\r\n- Computer Vision\r\n- CNNs\r\n- Image Processing\r\n- Automation\r\n\r\n---"
+  },
+  {
+    "id": "selected-projects-agentic-rag-13",
+    "section": "Selected Projects",
+    "topic": "Agentic RAG",
+    "text": "Atharva built a deployment-grade **Retrieval-Augmented Generation system** for domain-specific question answering and AI-assisted analysis."
+  },
+  {
+    "id": "selected-projects-agentic-rag-key-features-14",
+    "section": "Selected Projects",
+    "topic": "Agentic RAG — Key Features",
+    "text": "- Custom document parsing pipeline.\r\n- Embedding generation.\r\n- Information retrieval.\r\n- Ranking and reranking.\r\n- Domain-specific question answering.\r\n- Agentic orchestration layer.\r\n- Dynamic selection of specialized AI models.\r\n- Integration of medical literature and model capabilities into decision-making.\r\n- Action-oriented capabilities allowing agents to interact with underlying data and systems.\r\n- Support for multi-step tasks beyond conventional question answering."
+  },
+  {
+    "id": "selected-projects-agentic-rag-key-features-technical-areas-15",
+    "section": "Selected Projects",
+    "topic": "Agentic RAG — Key Features — Technical Areas",
+    "text": "- RAG\r\n- LLMs\r\n- Embeddings\r\n- Retrieval\r\n- Ranking\r\n- Agentic AI\r\n- Multi-agent / specialized-model orchestration\r\n- Medical AI\r\n- Information Retrieval\r\n\r\n---"
+  },
+  {
+    "id": "selected-projects-generative-ai-based-robot-control-16",
+    "section": "Selected Projects",
+    "topic": "Generative AI-based Robot Control",
+    "text": "A multimodal AI pipeline for robotic control in dynamic environments."
+  },
+  {
+    "id": "selected-projects-generative-ai-based-robot-control-key-features-17",
+    "section": "Selected Projects",
+    "topic": "Generative AI-based Robot Control — Key Features",
+    "text": "- Integrated **vision, depth estimation, and generative models**.\r\n- Explored diffusion and neural rendering approaches.\r\n- Connected visual perception with downstream robot actions.\r\n- Evaluated system-level behavior across perception and control components.\r\n- Focused on improving robustness and reliability of downstream robotic actions."
+  },
+  {
+    "id": "selected-projects-generative-ai-based-robot-control-key-features-technical-areas-18",
+    "section": "Selected Projects",
+    "topic": "Generative AI-based Robot Control — Key Features — Technical Areas",
+    "text": "- Multimodal AI\r\n- Computer Vision\r\n- Depth Estimation\r\n- Generative AI\r\n- Diffusion Models\r\n- Neural Rendering\r\n- Robotics\r\n- Robot Control\r\n\r\n---"
+  },
+  {
+    "id": "selected-projects-medical-image-generation-19",
+    "section": "Selected Projects",
+    "topic": "Medical Image Generation",
+    "text": "Generative AI systems for ophthalmological medical imaging."
+  },
+  {
+    "id": "selected-projects-medical-image-generation-key-features-20",
+    "section": "Selected Projects",
+    "topic": "Medical Image Generation — Key Features",
+    "text": "- Developed **Diffusion and StyleGAN-based generative models**.\r\n- Worked with ophthalmological imaging including **OCT and fundus images**.\r\n- Trained generative models from scratch.\r\n- Fine-tuned pretrained generative models.\r\n- Compared synthetic image quality and downstream utility.\r\n- Generated synthetic datasets for training classification models targeting rare ophthalmological diseases."
+  },
+  {
+    "id": "selected-projects-medical-image-generation-key-features-technical-areas-21",
+    "section": "Selected Projects",
+    "topic": "Medical Image Generation — Key Features — Technical Areas",
+    "text": "- Generative AI\r\n- Diffusion Models\r\n- StyleGAN\r\n- OCT Imaging\r\n- Fundus Imaging\r\n- Medical Image Generation\r\n- Synthetic Data Generation\r\n- Medical Computer Vision\r\n\r\n---"
+  },
+  {
+    "id": "publications-1-novel-artificial-intelligence-based-quantification-of-anterior-chamber-inflammation-using-vision-transformers-22",
+    "section": "Publications",
+    "topic": "1. Novel Artificial Intelligence–Based Quantification of Anterior Chamber Inflammation Using Vision Transformers",
+    "text": "Cifuentes-González, C., Gutiérrez-Sinisterra, L., Rojas-Carabali, W., Boon, J., **Hudlikar, A.**, et al.\r\n\r\n*Translational Vision Science & Technology*, 14(5), 31, 2025.\r\n\r\nDOI: 10.1167/tvst.14.5.31\r\n\r\nTopics: Artificial Intelligence, Vision Transformers, Ophthalmology, Anterior Chamber Inflammation, Medical Imaging.\r\n\r\n---"
+  },
+  {
+    "id": "publications-2-retinal-vascularity-index-in-parkinson-s-disease-vs-controls-23",
+    "section": "Publications",
+    "topic": "2. Retinal Vascularity Index in Parkinson's Disease vs Controls",
+    "text": "Hsu, J., D'Cunha, R. L., Choi, A., Zhu, M., Haystead, A., **Hudlikar, A.**, et al.\r\n\r\n*Investigative Ophthalmology & Visual Science*, 67(7), 3582, 2026.\r\n\r\nTopics: Artificial Intelligence, Retinal Imaging, Retinal Vascularity, Parkinson's Disease, Ophthalmology.\r\n\r\n---"
+  },
+  {
+    "id": "publications-3-a-novel-chaotic-system-for-text-encryption-optimized-with-genetic-algorithm-24",
+    "section": "Publications",
+    "topic": "3. A Novel Chaotic System for Text Encryption Optimized with Genetic Algorithm",
+    "text": "Menon, U. M., Menon, A. R., **Hudlikar, A.**, et al.\r\n\r\n*International Journal of Advanced Computer Science and Applications*, 11(10), 2020.\r\n\r\nDOI: 10.14569/IJACSA.2020.0111005\r\n\r\nTopics: Cryptography, Genetic Algorithms, Text Encryption, Chaotic Systems.\r\n\r\n---"
+  },
+  {
+    "id": "publications-4-scytale-an-evolutionary-cryptosystem-25",
+    "section": "Publications",
+    "topic": "4. Scytale — An Evolutionary Cryptosystem",
+    "text": "Menon, U., **Hudlikar, A.**, & Panda, D.\r\n\r\n*International Journal of Computer Science and Network*, 9(4), 153–159, 2020.\r\n\r\narXiv: 2008.05290\r\n\r\nTopics: Cryptography, Evolutionary Algorithms, Encryption.\r\n\r\n---"
+  },
+  {
+    "id": "publications-5-a-hybrid-autoencoder-architecture-for-text-encryption-26",
+    "section": "Publications",
+    "topic": "5. A Hybrid Autoencoder Architecture for Text Encryption",
+    "text": "Menon, U., Menon, A. R., **Hudlikar, A.**, Sharmila, A., & Mahalakshmi, P.\r\n\r\n*2021 Innovations in Power and Advanced Computing Technologies (i-PACT)*, 2021, pp. 1–7.\r\n\r\nDOI: 10.1109/i-PACT52855.2021.9696715\r\n\r\nTopics: Autoencoders, Cryptography, Text Encryption, Deep Learning.\r\n\r\n---"
+  },
+  {
+    "id": "education-master-of-science-in-computer-control-and-automation-nanyang-technological-university-27",
+    "section": "Education",
+    "topic": "Master of Science in Computer Control and Automation — Nanyang Technological University",
+    "text": "**August 2023 – July 2025**  \r\nSingapore\r\n\r\nDegree: MSc in Computer Control and Automation.\r\n\r\n---"
+  },
+  {
+    "id": "education-bachelor-of-technology-in-electrical-and-electronics-engineering-vellore-institute-of-technology-28",
+    "section": "Education",
+    "topic": "Bachelor of Technology in Electrical and Electronics Engineering — Vellore Institute of Technology",
+    "text": "**July 2017 – June 2021**  \r\nVellore, India\r\n\r\nDegree: B.Tech in Electrical and Electronics Engineering.\r\n\r\n---"
+  },
+  {
+    "id": "technical-skills-llm-generative-ai-29",
+    "section": "Technical Skills",
+    "topic": "LLM / Generative AI",
+    "text": "- Retrieval-Augmented Generation (RAG)\r\n- Large Language Models\r\n- LLM Fine-Tuning\r\n- Embeddings\r\n- Reranking\r\n- Agentic AI Systems\r\n- Prompt Engineering\r\n- LLM Evaluation\r\n- Error Analysis"
+  },
+  {
+    "id": "technical-skills-machine-learning-deep-learning-30",
+    "section": "Technical Skills",
+    "topic": "Machine Learning / Deep Learning",
+    "text": "- PyTorch\r\n- TensorFlow\r\n- Vision Transformers\r\n- Diffusion Models\r\n- Computer Vision\r\n- Generative Models\r\n- Deep Learning"
+  },
+  {
+    "id": "technical-skills-ml-infrastructure-31",
+    "section": "Technical Skills",
+    "topic": "ML Infrastructure",
+    "text": "- AWS\r\n- Docker\r\n- Microservices\r\n- CI/CD\r\n- Model Deployment\r\n- MLOps\r\n- Production Optimization"
+  },
+  {
+    "id": "technical-skills-programming-32",
+    "section": "Technical Skills",
+    "topic": "Programming",
+    "text": "- Python\r\n- C\r\n- C++\r\n- TypeScript\r\n- JavaScript\r\n- Java\r\n- Go\r\n\r\n---"
+  },
+  {
+    "id": "professional-interests-professional-interests-33",
+    "section": "Professional Interests",
+    "topic": "Professional Interests",
+    "text": "Atharva's technical interests include:\r\n\r\n- Artificial Intelligence\r\n- Large Language Models\r\n- AI Agents\r\n- Retrieval-Augmented Generation\r\n- AI Safety and Alignment\r\n- Multimodal AI\r\n- Computer Vision\r\n- Machine Learning Systems\r\n- ML Infrastructure\r\n- Model Performance and Optimization\r\n- Reinforcement Learning\r\n- Medical AI\r\n- Generative AI"
+  }
+]

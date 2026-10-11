@@ -6,12 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "chunk": "tsx scripts/chunker.ts",
+    "embed": "tsx scripts/embedder.ts",
+    "test-retrieval": "tsx scripts/test-retrieval.ts"
   },
   "dependencies": {
-    "next": "16.3.5",
+    "@huggingface/transformers": "^4.3.1",
+    "groq-sdk": "^1.6.0",
+    "next": "16.3.8",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-markdown": "^10.1.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -20,8 +26,9 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.3.5",
+    "eslint-config-next": "^14.2.35",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
