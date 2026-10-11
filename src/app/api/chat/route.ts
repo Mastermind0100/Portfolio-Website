@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { isResumeRelatedQuestion } from "../../../../lib/chat-scope";
 import { retrieveResumeChunks } from "../../../../lib/retriever";
 
 export const runtime = "nodejs";
@@ -38,6 +39,10 @@ export async function POST(request: Request) {
         answer:
           "This portfolio is about Atharva Hudlikar, an AI researcher and engineer based in Singapore. His experience spans LLMs and agentic AI, multimodal systems, computer vision, robotics, enterprise AI, and production machine learning; clinical AI is one part of that broader work.",
       });
+    }
+
+    if (!isResumeRelatedQuestion(question)) {
+      return NextResponse.json({ answer: outOfScopeAnswer });
     }
 
     // Retrieve relevant resume evidence.

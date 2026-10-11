@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import {
@@ -253,12 +254,11 @@ export default function Home() {
       <canvas id="neural-bg" className="neural-bg" aria-hidden="true" />
       <header className="topbar">
         <div className="topbar-inner">
-          <a className="identity" href="/">
+          <Link className="identity" href="/">
             <span className="identity-name">
               <strong>{profile.name}</strong>
             </span>
-
-          </a>
+          </Link>
           <nav aria-label="Main navigation">
             <a href="#terminal">Ask me</a>
             <a href="#projects">Projects</a>
@@ -286,8 +286,8 @@ export default function Home() {
           <div className="ambient ambient-three" />
           <div className="hero-content">
             <div className="welcome-copy">
-              <h1>Hi! I am Atharva's Portfolio Assistant.</h1>
-              <p>Ask me anything to do with Atharva's profile!</p>
+              <h1>Hi! I am Atharva&apos;s Portfolio Assistant.</h1>
+              <p>Ask me anything to do with Atharva&apos;s profile!</p>
               <span className="hero-location">{profile.location}</span>
             </div>
             {messages.length > 0 && (
