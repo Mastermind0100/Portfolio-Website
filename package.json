@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm ls onnxruntime-node && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "node --test --import tsx scripts/retriever.test.ts",
