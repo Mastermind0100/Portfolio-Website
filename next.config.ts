@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["onnxruntime-node", "sharp"],
+  serverExternalPackages: [
+    "@huggingface/transformers",
+    "onnxruntime-node",
+    "sharp",
+  ],
   reactCompiler: true,
 };
 
