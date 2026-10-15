@@ -34,9 +34,16 @@ export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isResponding, setIsResponding] = useState(false);
+  const chatInputRef = useRef<HTMLInputElement>(null);
   const chatStreamRef = useRef<HTMLDivElement>(null);
   const [project, setProject] = useState<PortfolioProject | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isResponding && messages.at(-1)?.from === "assistant") {
+      chatInputRef.current?.focus();
+    }
+  }, [isResponding, messages]);
 
   useEffect(() => {
     chatStreamRef.current?.scrollTo({
@@ -254,7 +261,14 @@ export default function Home() {
       <canvas id="neural-bg" className="neural-bg" aria-hidden="true" />
       <header className="topbar">
         <div className="topbar-inner">
-          <Link className="identity" href="/">
+          <Link
+            className="identity"
+            href="/"
+            onClick={(event) => {
+              event.preventDefault();
+              window.location.reload();
+            }}
+          >
             <span className="identity-name">
               <strong>{profile.name}</strong>
             </span>
@@ -355,6 +369,7 @@ export default function Home() {
             <form className="chat-form" onSubmit={submitChat}>
               <input
                 id="chatinputbox"
+                ref={chatInputRef}
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 placeholder="Ask about my work, research, or education..."
