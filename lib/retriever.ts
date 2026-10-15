@@ -1,4 +1,4 @@
-import { pipeline } from "@huggingface/transformers";
+import { pipeline, env } from "@huggingface/transformers";
 import type { FeatureExtractionPipeline } from "@huggingface/transformers";
 import fs from "node:fs";
 import path from "node:path";
@@ -25,6 +25,9 @@ const chunks: ResumeChunk[] = JSON.parse(
 
 async function getExtractor(): Promise<FeatureExtractionPipeline> {
   if (!extractorPromise) {
+    env.cacheDir = "/tmp/huggingface-cache";
+    fs.mkdirSync(env.cacheDir, { recursive: true });
+    
     extractorPromise = pipeline(
       "feature-extraction",
       "sentence-transformers/all-MiniLM-L6-v2"
