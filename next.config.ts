@@ -6,6 +6,13 @@ const nextConfig: NextConfig = {
     "onnxruntime-node",
     "sharp",
   ],
+
+  outputFileTracingIncludes: {
+    "/api/chat": [
+      "./node_modules/onnxruntime-node/**/*",
+    ],
+  },
+
   reactCompiler: true,
 };
 
