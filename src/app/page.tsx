@@ -1,7 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import {
+  type CSSProperties,
+  type FormEvent,
+  Fragment,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import ReactMarkdown from "react-markdown";
 import {
   education,
@@ -14,21 +22,69 @@ import {
 
 type ChatMessage = { from: "user" | "assistant"; text: string };
 type PortfolioProject = (typeof projects)[number];
+type Theme = "light" | "dark";
 
-const prompts = [
-  {
-    title: "AI research & engineering",
-    description: "Explore work across RAG, multimodal AI, and production ML.",
-    prompt: "What areas of AI research and engineering has Atharva worked in?",
-    icon: "database",
-  },
-  {
-    title: "Education",
-    description: "Ask about degrees, universities, or study.",
-    prompt: "Where did Atharva study?",
-    icon: "school",
-  },
-];
+const firstName = profile.name.split(" ")[0];
+const assistantName = `Ask${firstName}`;
+
+// Phosphor colours the knob cycles through.
+const screenModes = [
+  { name: "GRN", fg: "#9cf27f", bg: "#0e180f" },
+  { name: "AMB", fg: "#ffb547", bg: "#1a120a" },
+  { name: "ICE", fg: "#a6e6ff", bg: "#0a1419" },
+] as const;
+
+const yearOf = (text: string) => {
+  const years = text.match(/(?:19|20)\d{2}/g);
+  return years ? Number(years[years.length - 1]) : 0;
+};
+
+// Education shown oldest to newest, so the arrow reads as progression.
+const educationPath = [...education]
+  .sort((a, b) => yearOf(a.date) - yearOf(b.date))
+  .map((item) => ({
+    ...item,
+    level: /^master/i.test(item.degree)
+      ? "Postgraduate"
+      : /^bachelor/i.test(item.degree)
+        ? "Undergraduate"
+        : "Degree",
+    years: item.date.replace(/[A-Za-z]+\s+(\d{4})/g, "$1"),
+  }));
+
+// Newest first, with Atharva's own name picked out in the author list.
+const publicationsByYear = publications
+  .map((publication) => {
+    const match = publication.authors.match(/Hudlikar,\s*A\.?/);
+    return {
+      title: publication.title,
+      venue: publication.venue,
+      doi: "doi" in publication ? publication.doi : undefined,
+      url: "url" in publication ? publication.url : undefined,
+      year: yearOf(publication.venue),
+      authorsBefore: match ? publication.authors.slice(0, match.index) : publication.authors,
+      authorsSelf: match ? match[0] : "",
+      authorsAfter: match
+        ? publication.authors.slice((match.index ?? 0) + match[0].length)
+        : "",
+    };
+  })
+  .sort((a, b) => b.year - a.year);
+
+const meterLevels = [0.5, 0.8, 0.35, 0.9, 0.6, 1, 0.45, 0.75, 0.3, 0.85, 0.55, 0.95, 0.4, 0.7];
+
+// Theme lives on <html data-theme>, set before paint by the script in layout.tsx.
+function subscribeTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  return () => observer.disconnect();
+}
+const readTheme = (): Theme =>
+  document.documentElement.dataset.theme === "light" ? "light" : "dark";
+const readServerTheme = (): Theme => "dark";
 
 export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -36,8 +92,13 @@ export default function Home() {
   const [isResponding, setIsResponding] = useState(false);
   const chatInputRef = useRef<HTMLInputElement>(null);
   const chatStreamRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const [project, setProject] = useState<PortfolioProject | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [screenMode, setScreenMode] = useState(0);
+  const [knobTurns, setKnobTurns] = useState(0);
+  const [heroInView, setHeroInView] = useState(true);
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, readServerTheme);
 
   useEffect(() => {
     if (!isResponding && messages.at(-1)?.from === "assistant") {
@@ -46,137 +107,23 @@ export default function Home() {
   }, [isResponding, messages]);
 
   useEffect(() => {
+    if (messages.length === 0) return;
     chatStreamRef.current?.scrollTo({
       top: chatStreamRef.current.scrollHeight,
       behavior: "instant",
     });
-  }, [messages]);
+  }, [messages, isResponding]);
 
+  // Shows the "Back to chat" button once the assistant has scrolled out of view.
   useEffect(() => {
-    const canvas = document.getElementById("neural-bg") as HTMLCanvasElement | null;
-    const context = canvas?.getContext("2d");
-    if (!canvas || !context) return;
-
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    let width = 0;
-    let height = 0;
-    let frame = 0;
-    const mouse = { x: 0, y: 0, active: false };
-    const connectionDistance = 140;
-    const mouseRadius = 100;
-    const resize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-    resize();
-
-    const particles = Array.from({ length: 75 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 1) * (reducedMotion ? 0.05 : 0.45),
-      vy: (Math.random() - 1) * (reducedMotion ? 0.05 : 0.45),
-      radius: Math.random() * 1.8 + 1.2,
-      color:
-        Math.random() > 0.4 ? "rgba(0, 242, 254," : "rgba(56, 189, 248,",
-      pulseSpeed: Math.random() * 0.02 + 0.01,
-      pulse: Math.random() * Math.PI,
-    }));
-
-    const move = (event: PointerEvent) => {
-      mouse.x = event.clientX;
-      mouse.y = event.clientY;
-      mouse.active = true;
-    };
-    const leave = () => {
-      mouse.active = false;
-    };
-    const animate = () => {
-      context.clearRect(0, 0, width, height);
-      particles.forEach((particle, index) => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        if (particle.x < 0) particle.x = width;
-        else if (particle.x > width) particle.x = 0;
-        if (particle.y < 0) particle.y = height;
-        else if (particle.y > height) particle.y = 0;
-        particle.pulse += particle.pulseSpeed;
-
-        if (mouse.active) {
-          const dx = mouse.x - particle.x;
-          const dy = mouse.y - particle.y;
-          const distance = Math.hypot(dx, dy);
-          if (distance < mouseRadius) {
-            const force = (1 - distance / mouseRadius) * 0.4;
-            particle.x += dx * force * 0.04;
-            particle.y += dy * force * 0.04;
-          }
-        }
-
-        for (let next = index + 1; next < particles.length; next += 1) {
-          const other = particles[next];
-          const distance = Math.hypot(
-            particle.x - other.x,
-            particle.y - other.y
-          );
-          if (distance < connectionDistance) {
-            context.beginPath();
-            context.moveTo(particle.x, particle.y);
-            context.lineTo(other.x, other.y);
-            context.strokeStyle = `rgba(0, 242, 254, ${
-              (1 - distance / connectionDistance) * 0.18
-            })`;
-            context.lineWidth = 0.8;
-            context.stroke();
-          }
-        }
-
-        const distance = mouse.active
-          ? Math.hypot(mouse.x - particle.x, mouse.y - particle.y)
-          : Infinity;
-        const nearMouse = distance < mouseRadius;
-        if (nearMouse) {
-          context.beginPath();
-          context.moveTo(mouse.x, mouse.y);
-          context.lineTo(particle.x, particle.y);
-          context.strokeStyle = `rgba(0, 242, 254, ${
-            (1 - distance / mouseRadius) * 0.45
-          })`;
-          context.lineWidth = 1.2;
-          context.stroke();
-        }
-
-        context.beginPath();
-        context.arc(
-          particle.x,
-          particle.y,
-          nearMouse ? particle.radius * 1.5 : particle.radius,
-          0,
-          Math.PI * 2
-        );
-        const alpha = nearMouse
-          ? "0.9)"
-          : `${0.35 + Math.sin(particle.pulse) * 0.2})`;
-        context.fillStyle = particle.color + alpha;
-        context.shadowBlur = nearMouse ? 12 : 5;
-        context.shadowColor = "#00f2fe";
-        context.fill();
-        context.shadowBlur = 0;
-      });
-      frame = requestAnimationFrame(animate);
-    };
-
-    window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerleave", leave);
-    frame = requestAnimationFrame(animate);
-    return () => {
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerleave", leave);
-      cancelAnimationFrame(frame);
-    };
+    const hero = heroRef.current;
+    if (!hero) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroInView(entry.isIntersecting),
+      { threshold: 0.15 }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -246,6 +193,27 @@ export default function Home() {
     void ask(question);
   }
 
+  function askAbout(item: PortfolioProject) {
+    if (isResponding) return;
+    heroRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    void ask(`Tell me about the ${item.title} project.`);
+  }
+
+  function toggleTheme() {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem("theme", next);
+    } catch {
+      // Storage can be unavailable (private mode); the theme still applies for this visit.
+    }
+  }
+
+  function turnKnob() {
+    setScreenMode((mode) => (mode + 1) % screenModes.length);
+    setKnobTurns((turns) => turns + 1);
+  }
+
   function openProject(item: PortfolioProject) {
     setProject(item);
     setModalOpen(false);
@@ -256,368 +224,544 @@ export default function Home() {
     window.setTimeout(() => setProject(null), 250);
   }
 
-  return (
-    <div className="site-shell">
-      <canvas id="neural-bg" className="neural-bg" aria-hidden="true" />
-      <header className="topbar">
-        <div className="topbar-inner">
-          <Link
-            className="identity"
-            href="/"
-            onClick={(event) => {
-              event.preventDefault();
-              window.location.reload();
-            }}
-          >
-            <span className="identity-name">
-              <strong>{profile.name}</strong>
-            </span>
-          </Link>
-          <nav aria-label="Main navigation">
-            <a href="#terminal">Ask me</a>
-            <a href="#projects">Projects</a>
-            <a href="#stack-matrix">Expertise</a>
-            <a href="#timeline">Experience</a>
-            <a href="#publications">Publications</a>
-            <a href="#education">Education</a>
-          </nav>
-          <div className="header-actions">
-            <a className="resume" href="/resume.pdf" download="resume.pdf">
-              <span className="material-symbols-outlined">download</span>
-              <span>Download Resume</span>
-            </a>
-          </div>
-        </div>
-      </header>
+  const mode = screenModes[screenMode];
+  const screenStyle = {
+    "--screen-fg": mode.fg,
+    "--screen-bg": mode.bg,
+  } as CSSProperties;
 
-      <main>
-        <section
-          className={`hero${messages.length > 0 ? " chat-active" : ""}`}
-          id="terminal"
-        >
-          <div className="ambient ambient-one" />
-          <div className="ambient ambient-two" />
-          <div className="ambient ambient-three" />
-          <div className="hero-content">
-            <div className="welcome-copy">
-              <h1>Hi! I am Atharva&apos;s Portfolio Assistant.</h1>
-              <p>Ask me anything to do with Atharva&apos;s profile!</p>
-              <span className="hero-location">{profile.location}</span>
+  return (
+    <div className="site">
+      {/* ---------- Hero: the AskAtharva unit ---------- */}
+      <section className="hero" id="chat" ref={heroRef}>
+        <div className="wrap">
+          <header className="masthead">
+            <div className="masthead-name">
+              <strong>{profile.name}</strong>
+              <span>Portfolio</span>
             </div>
-            {messages.length > 0 && (
-              <div className="chat-heading">
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  forum
-                </span>
-                <span>Resume assistant</span>
-                <span className="chat-heading-hint">
-                  Ask a follow-up or explore the portfolio below
-                </span>
+            <a className="key key-sm" href="/resume.pdf" download="resume.pdf">
+              <DownloadIcon />
+              Download resume
+            </a>
+          </header>
+
+          <h1 className="hero-title">
+            Hi, I&apos;m {firstName}. <br/>Ask me anything about my work, or open
+            the classic view.
+          </h1>
+          <p className="hero-sub">
+            {profile.headline}, Based in {profile.location}.
+          </p>
+
+          <div className="unit">
+            <div className="unit-plate">
+              <div className="unit-brand">
+                <Screw className="deco" />
+                <span className="unit-name">{assistantName}</span>
+                <span className="unit-model">Portfolio assistant</span>
+                <span className="unit-badge">TALKS</span>
               </div>
-            )}
-            {messages.length === 0 && (
-              <div className="prompt-grid">
-                {prompts.map((item) => (
+              <div className="unit-controls">
+                <div className="toggle-group">
+                  <span className="toggle-text">Light</span>
+                  <SunIcon />
                   <button
-                    className="prompt-card"
-                    key={item.title}
-                    onClick={() => void ask(item.prompt)}
+                    className="toggle"
+                    type="button"
+                    role="switch"
+                    aria-checked={theme === "dark"}
+                    aria-label="Dark theme"
+                    onClick={toggleTheme}
                   >
-                    <span className="prompt-copy">
-                      <strong>{item.title}</strong>
-                      <span>{item.description}</span>
-                    </span>
-                    <span className="prompt-icon">
-                      <span className="material-symbols-outlined">
-                        {item.icon}
-                      </span>
+                    <span className="toggle-thumb">
+                      <i />
+                      <i />
+                      <i />
                     </span>
                   </button>
-                ))}
+                  <span className="toggle-text">Dark</span>
+                  <MoonIcon />
+                </div>
+                <a className="key key-sm" href="#about">
+                  Classic view
+                  <ArrowDownIcon />
+                </a>
+                <Screw className="deco" flip />
               </div>
-            )}
-            {messages.length > 0 && (
-              <div
-                className="chat-stream"
-                ref={chatStreamRef}
-                aria-live="polite"
-              >
-                {messages.map((message, index) => (
-                  <div
-                    className={`message ${message.from}`}
-                    key={`${message.from}-${index}`}
+            </div>
+
+            <div className="unit-body">
+              <div className="unit-main">
+                <div className="bezel">
+                  <div className="screen" style={screenStyle}>
+                    <div className="screen-header" aria-hidden="true">
+                      <span>
+                        {assistantName.toUpperCase()}
+                        <span className="screen-header-extra"> {"//"} PORTFOLIO OS</span>
+                      </span>
+                      <span>MODE {mode.name}</span>
+                    </div>
+                    <div
+                      className="screen-log"
+                      ref={chatStreamRef}
+                      aria-live="polite"
+                    >
+                      {messages.length === 0 && (
+                        <>
+                          <div className="screen-msg assistant">
+                            <span className="screen-tag">{"AI>"}</span>
+                            <div className="screen-text">
+                              <p>
+                                Boot OK. I know everything on {firstName}&apos;s
+                                resume: research, projects, experience,
+                                education and publications. Ask me anything.
+                              </p>
+                            </div>
+                          </div>
+                          <p className="screen-hint">
+                            No menus, no buttons. Just ask, e.g. &ldquo;What did{" "}
+                            {firstName} build at Goalist?&rdquo;
+                          </p>
+                        </>
+                      )}
+                      {messages.map((message, index) => (
+                        <div
+                          className={`screen-msg ${message.from}`}
+                          key={`${message.from}-${index}`}
+                        >
+                          <span className="screen-tag">
+                            {message.from === "assistant" ? "AI>" : "<YOU"}
+                          </span>
+                          <div className="screen-text">
+                            {message.from === "assistant" ? (
+                              <ReactMarkdown>{message.text}</ReactMarkdown>
+                            ) : (
+                              <p>{message.text}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      <p className="screen-cursor-line">
+                        {isResponding && (
+                          <span role="status">{"AI> searching the resume "}</span>
+                        )}
+                        <span className="screen-cursor" aria-hidden="true">
+                          █
+                        </span>
+                      </p>
+                    </div>
+                    <div className="screen-scanlines" aria-hidden="true" />
+                  </div>
+                </div>
+
+                <form className="ask-row" id="ask-form" onSubmit={submitChat}>
+                  <label htmlFor="chatinputbox">Ask</label>
+                  <input
+                    id="chatinputbox"
+                    ref={chatInputRef}
+                    value={input}
+                    onChange={(event) => setInput(event.target.value)}
+                    placeholder={`Anything about ${firstName}: research, projects, experience…`}
+                    autoComplete="off"
+                    disabled={isResponding}
+                  />
+                  <button
+                    className="key key-accent send-inline"
+                    type="submit"
+                    aria-label="Send question"
+                    disabled={isResponding || !input.trim()}
                   >
-                    <span className="message-mark">
-                      {message.from === "assistant" ? (
-                        <span className="material-symbols-outlined">forum</span>
-                      ) : (
-                        "U"
-                      )}
+                    <SendIcon />
+                  </button>
+                </form>
+              </div>
+
+              <div className="unit-side">
+                <div className="side-speaker deco">
+                  <SpeakerGrille />
+                  <div className="leds">
+                    <span>
+                      <i className="led led-on" />
+                      PWR
                     </span>
-                    <div className="message-content">
-                      {message.from === "assistant" ? (
-                        <ReactMarkdown>{message.text}</ReactMarkdown>
-                      ) : (
-                        <p>{message.text}</p>
-                      )}
+                    <span>
+                      <i className={`led ${isResponding ? "led-busy" : ""}`} />
+                      BUSY
+                    </span>
+                  </div>
+                </div>
+
+                <div className="side-tuner">
+                  <button
+                    className="knob"
+                    type="button"
+                    onClick={turnKnob}
+                    aria-label={`Change screen colour (now ${mode.name})`}
+                    style={{ transform: `rotate(${knobTurns * 120}deg)` }}
+                  >
+                    <i />
+                  </button>
+                  <div className="tuner-readout">
+                    <div className="tuner-label">
+                      <strong>SCREEN</strong>
+                      <span>{mode.name}</span>
+                    </div>
+                    <div
+                      className={`meter${isResponding ? " is-busy" : ""}`}
+                      aria-hidden="true"
+                    >
+                      {meterLevels.map((level, index) => (
+                        <i
+                          key={index}
+                          style={
+                            {
+                              "--level": level,
+                              "--delay": `${index * 0.05}s`,
+                              "--speed": `${0.35 + level * 0.4}s`,
+                              background: index > 10 ? "var(--accent)" : mode.fg,
+                            } as CSSProperties
+                          }
+                        />
+                      ))}
                     </div>
                   </div>
-                ))}
-                {isResponding && <p role="status">Searching the resume…</p>}
-              </div>
-            )}
-            <form className="chat-form" onSubmit={submitChat}>
-              <input
-                id="chatinputbox"
-                ref={chatInputRef}
-                value={input}
-                onChange={(event) => setInput(event.target.value)}
-                placeholder="Ask about my work, research, or education..."
-                aria-label="Ask the resume assistant"
-                disabled={isResponding}
-              />
-              <button
-                aria-label="Send prompt"
-                title="Send prompt"
-                type="submit"
-                disabled={isResponding || !input.trim()}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+                </div>
+
+                <div className="guide deco">
+                  <strong>Operating guide</strong>
+                  <span>1. Type any question about {firstName}</span>
+                  <span>2. Press send or Enter</span>
+                  <span>3. Turn the knob to retune the screen</span>
+                  <span>4. Open the classic view to scroll</span>
+                </div>
+
+                <button
+                  className="key key-accent send-side"
+                  type="submit"
+                  form="ask-form"
+                  disabled={isResponding || !input.trim()}
                 >
-                  <line x1="22" y1="2" x2="11" y2="13" />
-                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                </svg>
-              </button>
-            </form>
+                  SEND
+                  <ReturnIcon />
+                </button>
+              </div>
+            </div>
+
+            <div className="unit-footer">
+              <span>Built by: {profile.name}</span>
+              <span>{profile.location}</span>
+            </div>
           </div>
-          <a className="scroll-cue" href="#portfolio">
-            <span>OR SCROLL TO EXPLORE MY WORK</span>
-            <span className="material-symbols-outlined">keyboard_arrow_down</span>
-          </a>
+        </div>
+      </section>
+
+      {/* ---------- Classic portfolio ---------- */}
+      <main>
+        <section className="section section-alt" id="about">
+          <div className="wrap about">
+            <figure className="about-portrait">
+              <Image
+                src="/profile.jpg"
+                alt={`${profile.name} portrait`}
+                width={560}
+                height={700}
+                sizes="(max-width: 760px) calc(100vw - 48px), (max-width: 1100px) 34vw, 360px"
+                quality={90}
+                priority
+              />
+            </figure>
+            <div className="about-content">
+              <div className="about-main">
+                <h2 className="section-kicker">About</h2>
+                <p className="about-statement">
+                  Hello There! I&apos;m {firstName}.
+                </p>
+                <p className="about-summary">I’m an AI engineer and researcher who loves building solutions. What started with robotics evolved into computer vision and eventually a deep dive into AI, spanning everything from gesture-controlled systems and robotics to LLMs, AI pipelines, and agentic architectures. Today, I’m focused on building intelligent systems that go beyond generating outputs — systems that reason, use tools, and turn ambitious ideas into real-world solutions. <br/><br/> 
+                Outside of AI, I love travelling, gaming, and falling down rabbit holes ranging from obscure history to quantum mechanics. At my core, I’m a builder driven by curiosity and an appetite for the seemingly impossible. Give me a weird problem and ask, “Can you build this?” — I’ll figure it out.</p>
+              </div>
+              <aside className="about-card" aria-label="Profile links">
+                <div className="about-links">
+                  <a className="key key-sm" href={profile.github} target="_blank" rel="noreferrer">
+                    GitHub
+                  </a>
+                  <a className="key key-sm" href={profile.linkedin} target="_blank" rel="noreferrer">
+                    LinkedIn
+                  </a>
+                  <a className="key key-sm" href="/resume.pdf" download="resume.pdf">
+                    <DownloadIcon />
+                    Resume
+                  </a>
+                </div>
+              </aside>
+            </div>
+          </div>
         </section>
 
-        <section className="content-section" id="portfolio">
-          <section className="content-block" id="timeline">
+        <section className="section" id="projects">
+          <div className="wrap">
             <SectionHeading
-              eyebrow="CAREER HISTORY"
-              title="Work Experience"
-              subtitle="Research, product engineering, and internships as listed in my resume."
-            />
-            <div className="timeline">
-              {experience.map((item) => (
-                <TimelineItem key={`${item.company}-${item.role}`} {...item} />
-              ))}
-            </div>
-          </section>
-
-          <div className="divider" />
-
-          <section className="content-block" id="education">
-            <SectionHeading
-              eyebrow="EDUCATION"
-              title="Education"
-            />
-            <div className="education-grid">
-              {education.map((item) => (
-                <article className="education-card" key={item.institution}>
-                  <span className="material-symbols-outlined" aria-hidden="true">
-                    school
-                  </span>
-                  <span className="timeline-date">{item.date}</span>
-                  <h3>{item.degree}</h3>
-                  <p>{item.institution}</p>
-                  <span className="timeline-location">{item.location}</span>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <div className="divider" />
-
-          <section className="content-block" id="projects">
-            <SectionHeading
-              eyebrow="RESEARCH & ENGINEERING"
-              title="Selected Projects"
-              count={`${projects.length} PROJECTS`}
-              subtitle="Explore projects across agentic retrieval, multimodal robotics, generative modeling, and computer vision."
+              title="Selected projects"
+              note={`${projects.length} projects`}
             />
             <div className="project-grid">
-              {projects.map((item) => (
-                <button
-                  className="project-card"
-                  key={item.id}
-                  onClick={() => openProject(item)}
-                >
-                  <span className="project-main">
-                    <span className="project-meta">
-                      <span className={`category-${item.categoryColor}`}>
-                        {item.category}
+              {projects.map((item, index) => {
+                const tint = screenModes[index % screenModes.length];
+                return (
+                  <article className="project-card" key={item.id}>
+                    <button
+                      className="project-screen"
+                      type="button"
+                      onClick={() => openProject(item)}
+                      aria-label={`Open details for ${item.title}`}
+                      style={{ "--screen-fg": tint.fg, "--screen-bg": tint.bg } as CSSProperties}
+                    >
+                      <span className="project-category">{item.category}</span>
+                      <span className="project-title">{item.title}</span>
+                      <span className="project-open" aria-hidden="true">
+                        Open details
                       </span>
-                      <em>
-                        <i />
-                        {item.status}
-                      </em>
-                    </span>
-                    <span className="project-title">{item.title}</span>
-                    <span className="project-description">
-                      {item.description}
-                    </span>
-                    <span className="tags">
-                      {item.tags.slice(0, 4).map((tag) => (
-                        <span key={tag}>{tag}</span>
-                      ))}
-                    </span>
-                  </span>
-                  <span className="project-footer">
-                    <span className="project-link">
-                      Explore project details
-                      <span className="material-symbols-outlined">
-                        arrow_forward
-                      </span>
-                    </span>
-                  </span>
-                </button>
-              ))}
+                    </button>
+                    <div className="project-body">
+                      <span className="project-status">{item.status}</span>
+                      <p>{item.description}</p>
+                      <div className="rocker" role="group" aria-label={`${item.title} actions`}>
+                        <button type="button" onClick={() => openProject(item)}>
+                          <DetailsIcon />
+                          Details
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
             <a
-              className="github-projects-link"
+              className="text-link"
               href={profile.github}
               target="_blank"
               rel="noreferrer"
             >
-              <span className="material-symbols-outlined" aria-hidden="true">
-                open_in_new
-              </span>
-              Explore more projects on GitHub
+              More projects on GitHub
             </a>
-          </section>
+          </div>
+        </section>
 
-          <div className="divider" />
+        <section className="section section-alt" id="experience">
+          <div className="wrap">
+            <SectionHeading title="Work experience" large />
+            <div className="xp">
+              {experience.map((item, index) => {
+                const [start, end] = item.date.split(/\s+[—–-]\s+/);
+                const current = item.date.includes("Present");
+                const className = [
+                  "xp-row",
+                  index === 0 && "is-first",
+                  index === experience.length - 1 && "is-last",
+                  current && "is-current",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+                return (
+                  <article className={className} key={`${item.company}-${item.role}`}>
+                    <div className="xp-rail" aria-hidden="true">
+                      <span className="xp-node" />
+                    </div>
+                    <div className="xp-when">
+                      <span className="lcd">
+                        {start ?? item.date}
+                        {end && (
+                          <>
+                            <br />
+                            {end}
+                          </>
+                        )}
+                      </span>
+                      {current && (
+                        <span className="xp-now">
+                          <i />
+                          Current role
+                        </span>
+                      )}
+                      <span className="xp-place">
+                        <PinIcon />
+                        {item.location}
+                      </span>
+                    </div>
+                    <div className="xp-what">
+                      <h3>{item.role}</h3>
+                      <p className="xp-company">{item.company}</p>
+                      <p className="xp-desc">{item.description}</p>
+                      <div className="keycaps keycaps-sm">
+                        {item.tags.map((tag) => (
+                          <span key={tag}>{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            <a className="key key-sm timeline-resume" href="/resume.pdf" download="resume.pdf">
+              <DownloadIcon />
+              Download full resume (PDF)
+            </a>
+          </div>
+        </section>
 
-          <section className="content-block" id="publications">
+        <section className="section" id="education">
+          <div className="wrap">
+            <SectionHeading title="Education" />
+            <div className="edu-track">
+              {educationPath.map((item, index) => (
+                <Fragment key={item.institution}>
+                  {index > 0 && (
+                    <div className="edu-link" aria-hidden="true">
+                      <span className="edu-link-line" />
+                      <span className="edu-link-key">
+                        <SendIcon />
+                      </span>
+                    </div>
+                  )}
+                  <article className="edu-slot">
+                    <div className="edu-slot-top">
+                      <span className="edu-level">{item.level}</span>
+                      <span className="lcd lcd-sm">{item.years}</span>
+                    </div>
+                    <h3>{item.degree}</h3>
+                    <p className="edu-school">{item.institution}</p>
+                    <p className="edu-place">
+                      <PinIcon />
+                      {item.location}
+                    </p>
+                  </article>
+                </Fragment>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section section-alt" id="publications">
+          <div className="wrap">
             <SectionHeading
-              eyebrow="RESEARCH CONTRIBUTIONS"
-              title="Selected Publications"
-              count={`${publications.length} PUBLICATIONS`}
-              subtitle="Five publications across AI-enabled imaging, computer vision, and cryptography."
+              title="Publications"
+              note={`${publications.length} papers`}
             />
-            <div className="publication-list">
-              {publications.map((publication) => (
-                <article className="publication-card" key={publication.title}>
-                  <span className="material-symbols-outlined" aria-hidden="true">
-                    article
-                  </span>
-                  <div>
+            <div className="pub-list">
+              {publicationsByYear.map((publication) => (
+                <article className="pub-row" key={publication.title}>
+                  <span className="pub-year">{publication.year || ""}</span>
+                  <div className="pub-main">
                     <h3>{publication.title}</h3>
-                    <p className="publication-authors">{publication.authors}</p>
-                    <p>{publication.venue}</p>
+                    <p className="pub-authors">
+                      {publication.authorsBefore}
+                      {publication.authorsSelf && (
+                        <strong className="pub-me">{publication.authorsSelf}</strong>
+                      )}
+                      {publication.authorsAfter}
+                    </p>
+                    <p className="pub-venue">{publication.venue}</p>
+                  </div>
+                  <div className="pub-actions">
                     {publication.doi && (
                       <a
+                        className="key key-sm"
                         href={`https://doi.org/${publication.doi}`}
                         target="_blank"
                         rel="noreferrer"
                       >
-                        DOI: {publication.doi}
+                        DOI
+                        <ExternalIcon />
                       </a>
                     )}
                     {publication.url && (
                       <a
+                        className="key key-sm"
                         href={publication.url}
                         target="_blank"
                         rel="noreferrer"
                       >
-                        View on arXiv
+                        arXiv
+                        <ExternalIcon />
                       </a>
                     )}
                   </div>
                 </article>
               ))}
             </div>
-          </section>
-          <div className="divider" />
+          </div>
+        </section>
 
-          <section className="content-block" id="stack-matrix">
-            <SectionHeading
-              eyebrow="TECHNICAL EXPERTISE"
-              title="Skills & Tools"
-              subtitle="Skills and technologies listed in my resume, grouped by the work they support."
-            />
-            <div className="stack-grid">
+        <section className="section" id="skills">
+          <div className="wrap">
+            <SectionHeading title="Skills and tools" />
+            <div className="skill-grid">
               {skillGroups.map((group) => (
-                <StackCard
-                  key={group.title}
-                  title={group.title}
-                  icon={group.icon}
-                  description={group.description}
-                  tags={group.tags}
-                />
+                <article className="skill-group" key={group.title}>
+                  <div className="skill-head">
+                    <span className="skill-icon">
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        {group.icon}
+                      </span>
+                    </span>
+                    <h3>{group.title}</h3>
+                    <span className="skill-count">{group.tags.length} skills</span>
+                  </div>
+                  <p>{group.description}</p>
+                  <div className="keycaps keycaps-well">
+                    {group.tags.map((tag) => (
+                      <span key={tag}>{tag}</span>
+                    ))}
+                  </div>
+                </article>
               ))}
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section className="contact-panel" id="contact">
-            <div className="contact-heading">
-              <span className="eyebrow">GET IN TOUCH</span>
-              <h2>Let&apos;s connect</h2>
-              <p>
-                Want to discuss AI research, engineering, or an opportunity?
-                Choose the best way to reach me below.
-              </p>
-            </div>
-            <div className="contact-actions">
-              <a href={profile.github} target="_blank" rel="noreferrer">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.76-1.32-3.76-1.32-.5-1.29-1.24-1.63-1.24-1.63-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 .1.61 2.6 3.42 1.86.1-.72.39-1.22.7-1.5-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.21 1.15-2.99-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.53.23 2.67.11 2.95.72.78 1.15 1.77 1.15 2.99 0 4.29-2.61 5.24-5.1 5.51.4.35.75 1.02.75 2.06v3.05c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"
-                  />
-                </svg>
-                <strong>GitHub</strong>
-                <span>View my code and projects</span>
-              </a>
-              <a href={profile.linkedin} target="_blank" rel="noreferrer">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M20.45 2H3.55C2.69 2 2 2.68 2 3.52v16.96c0 .84.69 1.52 1.55 1.52h16.9c.86 0 1.55-.68 1.55-1.52V3.52c0-.84-.69-1.52-1.55-1.52ZM7.93 18.8H4.96V9.24h2.97v9.56ZM6.45 7.93a1.72 1.72 0 1 1 0-3.44 1.72 1.72 0 0 1 0 3.44ZM19.04 18.8h-2.97v-4.65c0-1.11-.02-2.54-1.55-2.54-1.55 0-1.79 1.21-1.79 2.46v4.73H9.76V9.24h2.85v1.31h.04c.4-.75 1.37-1.55 2.82-1.55 3.02 0 3.57 1.99 3.57 4.58v5.22Z"
-                  />
-                </svg>
-                <strong>LinkedIn</strong>
-                <span>Connect with me professionally</span>
-              </a>
-              <a href={`mailto:${profile.email}`}>
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  mail
+        <section className="section contact-section" id="contact">
+          <div className="wrap">
+            <div className="contact-panel">
+              <div className="contact-copy">
+                <span className="contact-prompt">
+                  {`${assistantName.toUpperCase()}> READY WHEN YOU ARE`}
+                  <span className="screen-cursor" aria-hidden="true">█</span>
                 </span>
-                <strong>Email</strong>
-                <span>{profile.email}</span>
-              </a>
+                <h2>Let&apos;s connect.</h2>
+                <p>
+                  Want to discuss AI research, engineering, or an opportunity?
+                  Pick whichever way suits you.
+                </p>
+              </div>
+              <div className="contact-actions">
+                <a className="key key-accent" href={`mailto:${profile.email}`}>
+                  Email me
+                </a>
+                <a className="contact-link" href={profile.linkedin} target="_blank" rel="noreferrer">
+                  LinkedIn
+                </a>
+                <a className="contact-link" href={profile.github} target="_blank" rel="noreferrer">
+                  GitHub
+                </a>
+              </div>
             </div>
-            <div className="contact-bottom">
+            <footer className="site-footer">
               <span>© {profile.name}</span>
-              <span>{profile.location} · AI Research & Engineering</span>
-            </div>
-          </section>
+              <a href="#chat">Back to chat</a>
+            </footer>
+          </div>
         </section>
       </main>
 
-      <footer>
-        <div>
-          <strong>{profile.name}</strong>
-          <span>·</span>
-          <span>{profile.headline}</span>
-        </div>
-        <div>
-          <a href={`mailto:${profile.email}`}>{profile.email}</a>
-        </div>
-      </footer>
+      <a
+        className={`key key-sm back-to-chat${heroInView ? "" : " is-visible"}`}
+        href="#chat"
+        aria-hidden={heroInView}
+        tabIndex={heroInView ? -1 : 0}
+      >
+        <ArrowUpIcon />
+        Back to chat
+      </a>
 
       {project && (
         <div
@@ -633,61 +777,50 @@ export default function Home() {
           />
           <div className="project-modal">
             <div className="modal-top">
-              <div>
-                <span className={`eyebrow category-${project.categoryColor}`}>
-                  {project.category}
-                </span>
-                <span className="modal-status">
-                  <i />
-                  {project.status}
-                </span>
+              <div className="modal-meta">
+                <span>{project.category}</span>
+                <span>{project.status}</span>
               </div>
               <button
-                className="close-modal"
+                className="key key-sm modal-close"
                 onClick={closeProject}
                 aria-label="Close project details"
-                title="Close modal (Esc)"
+                title="Close (Esc)"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  close
+                </span>
               </button>
             </div>
-            <div className="modal-title-row">
-              <h2 id="modal-title">{project.title}</h2>
-              {"repositoryUrl" in project && project.repositoryUrl && (
-                <a
-                  className="modal-repository-link"
-                  href={project.repositoryUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span className="material-symbols-outlined" aria-hidden="true">
-                    open_in_new
-                  </span>
-                  View repository
-                </a>
-              )}
-            </div>
+            <h2 id="modal-title">{project.title}</h2>
+            {"repositoryUrl" in project && project.repositoryUrl && (
+              <a
+                className="text-link"
+                href={project.repositoryUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                View repository
+              </a>
+            )}
             <div className="modal-section">
-              <span className="eyebrow">PROJECT OVERVIEW</span>
+              <h3>Overview</h3>
               <p>{project.overview}</p>
             </div>
             <div className="modal-section">
-              <span className="eyebrow">PROJECT DETAILS</span>
+              <h3>Details</h3>
               <div className="highlight-grid">
                 {project.highlights.map((highlight) => (
                   <div key={highlight.title}>
-                    <strong>
-                      <i />
-                      {highlight.title}
-                    </strong>
+                    <strong>{highlight.title}</strong>
                     <p>{highlight.description}</p>
                   </div>
                 ))}
               </div>
             </div>
             <div className="modal-section">
-              <span className="eyebrow">TECHNICAL AREAS</span>
-              <div className="tags">
+              <h3>Technical areas</h3>
+              <div className="chips">
                 {project.tags.map((tag) => (
                   <span key={tag}>{tag}</span>
                 ))}
@@ -701,79 +834,161 @@ export default function Home() {
 }
 
 function SectionHeading({
-  eyebrow,
   title,
-  subtitle,
-  count,
+  note,
+  large,
 }: {
-  eyebrow: string;
   title: string;
-  subtitle?: string;
-  count?: string;
+  note?: string;
+  large?: boolean;
 }) {
   return (
     <div className="section-heading">
-      <div>
-        <span className="eyebrow">
-          <i />
-          {eyebrow}
-        </span>
-        <h2>{title}</h2>
-        {subtitle && <p>{subtitle}</p>}
-      </div>
-      {count && <small>{count}</small>}
+      <h2 className={large ? "is-large" : undefined}>{title}</h2>
+      {note && <span>{note}</span>}
     </div>
   );
 }
 
-function StackCard({
-  title,
-  icon,
-  description,
-  tags,
-}: {
-  title: string;
-  icon: string;
-  description: string;
-  tags: string[];
-}) {
+function Screw({ className, flip }: { className?: string; flip?: boolean }) {
   return (
-    <article className="stack-card">
-      <div className="stack-card-heading">
-        <h3>{title}</h3>
-        <span className="material-symbols-outlined">{icon}</span>
-      </div>
-      <p>{description}</p>
-      <div className="stack-tags">
-        {tags.map((tag) => (
-          <span key={tag}>{tag}</span>
-        ))}
-      </div>
-    </article>
+    <svg className={className} aria-hidden="true" width="14" height="14" viewBox="0 0 14 14">
+      <circle cx="7" cy="7" r="6" fill="var(--screw)" stroke="var(--line)" />
+      <path
+        d={flip ? "M3.5 3.5l7 7" : "M3.5 10.5l7-7"}
+        stroke="var(--muted)"
+        strokeWidth="1.4"
+      />
+    </svg>
   );
 }
 
-function TimelineItem({
-  date,
-  location,
-  role,
-  company,
-  description,
-  tags,
-}: (typeof experience)[number]) {
+function SpeakerGrille() {
+  const rows = [0, 1, 2, 3];
   return (
-    <article className="timeline-item">
-      <span className="timeline-date">{date}</span>
-      <span className="timeline-location">{location}</span>
-      <h3>
-        {role} <b>@ {company}</b>
-      </h3>
-      <p>{description}</p>
-      <div className="timeline-tags">
-        {tags.map((tag) => (
-          <span key={tag}>{tag}</span>
-        ))}
-      </div>
-    </article>
+    <svg aria-hidden="true" width="132" height="76" viewBox="0 0 132 76">
+      <g fill="var(--grille)">
+        {rows.map((row) =>
+          Array.from({ length: row % 2 === 0 ? 7 : 6 }, (_, col) => (
+            <circle
+              key={`${row}-${col}`}
+              cx={(row % 2 === 0 ? 6 : 16) + col * 20}
+              cy={6 + row * 21}
+              r="4"
+            />
+          ))
+        )}
+      </g>
+    </svg>
+  );
+}
+
+const iconProps = {
+  width: 18,
+  height: 18,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2.2,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  "aria-hidden": true,
+};
+
+function DownloadIcon() {
+  return (
+    <svg {...iconProps} width={16} height={16}>
+      <path d="M12 4v11" />
+      <path d="M7 10l5 5 5-5" />
+      <path d="M5 20h14" />
+    </svg>
+  );
+}
+
+function ArrowDownIcon() {
+  return (
+    <svg {...iconProps} width={16} height={16}>
+      <path d="M12 5v14" />
+      <path d="M6 13l6 6 6-6" />
+    </svg>
+  );
+}
+
+function ArrowUpIcon() {
+  return (
+    <svg {...iconProps} width={16} height={16}>
+      <path d="M12 19V5" />
+      <path d="M6 11l6-6 6 6" />
+    </svg>
+  );
+}
+
+function DetailsIcon() {
+  return (
+    <svg {...iconProps} width={16} height={16} strokeWidth={2}>
+      <rect x="4" y="4" width="16" height="16" rx="3" />
+      <path d="M9 9h6M9 13h6M9 17h3" />
+    </svg>
+  );
+}
+
+function ChatIcon() {
+  return (
+    <svg {...iconProps} width={16} height={16} strokeWidth={2}>
+      <path d="M4 5h16v11H9l-5 4z" />
+    </svg>
+  );
+}
+
+function PinIcon() {
+  return (
+    <svg {...iconProps} width={14} height={14} strokeWidth={2}>
+      <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </svg>
+  );
+}
+
+function ExternalIcon() {
+  return (
+    <svg {...iconProps} width={14} height={14}>
+      <path d="M7 17L17 7" />
+      <path d="M8 7h9v9" />
+    </svg>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg {...iconProps} width={16} height={16} className="toggle-icon">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg {...iconProps} width={16} height={16} className="toggle-icon">
+      <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+    </svg>
+  );
+}
+
+function ReturnIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M9 10l-5 5 5 5" />
+      <path d="M20 4v7a4 4 0 0 1-4 4H4" />
+    </svg>
+  );
+}
+
+function SendIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </svg>
   );
 }

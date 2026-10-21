@@ -2,8 +2,7 @@ export const profile = {
   name: "Atharva Hudlikar",
   headline: "AI Researcher & Engineer",
   location: "Singapore",
-  summary:
-    "AI researcher and engineer working across large language models, retrieval-augmented and agentic systems, multimodal AI, computer vision, and production machine learning. Experience spans enterprise AI products, information retrieval, robotics, generative modeling, and clinical research and deployment.",
+  summary: "I’m an AI engineer and researcher who loves building solutions. What started with robotics evolved into computer vision and eventually a deep dive into AI, spanning everything from gesture-controlled systems and robotics to LLMs, AI pipelines, and agentic architectures. Today, I’m focused on building intelligent systems that go beyond generating outputs — systems that reason, use tools, and turn ambitious ideas into real-world solutions. Outside of AI, I love travelling, gaming, and falling down rabbit holes ranging from obscure history to quantum mechanics. At my core, I’m a builder driven by curiosity and an appetite for the seemingly impossible. Give me a weird problem and ask, “Can you build this?” — I’ll figure it out.",
   email: "atharvahudlikar@gmail.com",
   linkedin: "https://linkedin.com/in/atharva-hudlikar/",
   github: "https://github.com/Mastermind0100",
@@ -12,12 +11,12 @@ export const profile = {
 export const projects = [
   {
     id: "agentic-rag",
-    category: "INFORMATION RETRIEVAL",
+    category: "AGENTIC AI",
     categoryColor: "cyan" as const,
     status: "RAG · Agentic AI",
-    title: "Agentic RAG",
+    title: "Agentic Medical Data Analysis",
     description:
-      "A deployment-grade retrieval-augmented generation system for domain-specific question answering and AI-assisted analysis.",
+      "A deployment-grade RAG assisted system for domain-specific querying on Medical databases and AI-assisted analysis.",
     overview:
       "An end-to-end system that turns domain documents into actionable answers. Its pipeline combines custom document parsing, embedding generation, retrieval, ranking, and reranking with agentic orchestration for multi-step tasks.",
     highlights: [
@@ -52,7 +51,7 @@ export const projects = [
     category: "MULTIMODAL AI",
     categoryColor: "sky" as const,
     status: "Vision · Robotics",
-    title: "Generative AI-based Robot Control",
+    title: "Generative AI-Based Robot Control",
     description:
       "A multimodal AI pipeline connecting visual perception with robot actions in dynamic environments.",
     overview:
