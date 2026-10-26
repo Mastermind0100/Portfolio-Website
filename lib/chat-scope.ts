@@ -1,5 +1,5 @@
 const resumeContextTerms =
-  /\b(?:atharva|he|him|his|resume|profile|portfolio|education|degree|university|school|stud(?:y|ies|ied)|experience|career|employer|project|publication|paper|skill|expertise|research|achievement|award|intern(?:ship)?|robot(?:ics)?|llm|rag|retrieval|agentic|multimodal|computer vision|machine learning|artificial intelligence)\b/i;
+  /\b(?:atharva|he|him|his|resume|profile|portfolio|education|degree|university|school|stud(?:y|ies|ied)|experience|career|employer|project|publication|paper|skill|expertise|research|achievement|award|intern(?:ship)?|robot(?:ics)?|llm|rag|retrieval|agentic|multimodal|computer vision|machine learning|artificial intelligence|this guy)\b/i;
 
 const smallTalkReplies = [
   {

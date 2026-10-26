@@ -419,7 +419,7 @@ export default function Home() {
                     </>
                   ) : (
                     <div className="console-welcome">
-                      <p>Ask me anything about {firstName}&apos;s work.</p>
+                      <p>Hi! I am a friendly Chatbot designed to answer your burning questions about {firstName}&apos;s profile. <br/><br/>Ask me anything!</p>
                     </div>
                   )}
 
@@ -429,7 +429,7 @@ export default function Home() {
                     </span>
                     {isResponding ? (
                       <span className="console-prompt-busy" role="status">
-                        {"AI> searching the resume…"}
+                        {"AI is searching the resume…"}
                       </span>
                     ) : (
                       <div className={`console-field${caretAtEnd ? "" : " is-editing"}`}>
@@ -438,7 +438,7 @@ export default function Home() {
                           <span className="console-block" />
                           {!input && (
                             <span className="console-placeholder">
-                              type a question
+                              Type a question
                               <span className="hide-narrow"> about {firstName}</span>…
                             </span>
                           )}
@@ -533,11 +533,6 @@ export default function Home() {
                 SEND
                 <ReturnIcon />
               </button>
-            </div>
-
-            <div className="unit-footer">
-              <span>Built by: {profile.name}</span>
-              <span>{profile.location}</span>
             </div>
           </div>
         </div>
@@ -834,7 +829,8 @@ export default function Home() {
             </div>
             <footer className="site-footer">
               <span>© {profile.name}</span>
-              <a href="#chat">Back to chat</a>
+              <br/>
+              <span className="favicon-credits">Favicon created by <a href="https://www.flaticon.com/authors/juicy-fish" target="_blank">juicy_fish</a></span>
             </footer>
           </div>
         </section>

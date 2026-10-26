@@ -1115,21 +1115,20 @@ input {
   border-color: var(--panel-ink);
 }
 .site-footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 12px;
+  display: block;
   margin-top: 36px;
   color: var(--muted);
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.site-footer a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  text-decoration: none;
+
+.favicon-credits {
+  font-size: 7px;
+}
+
+.favicon-credits a {
+  color: lightblue;
 }
 
 /* Back to chat */
@@ -2250,9 +2249,9 @@ input {
 .console-welcome {
   display: flex;
   flex: 1;
-  align-items: center;
+  /* align-items: center; */
   min-height: 0;
-  padding: 0 56px 40px;
+  padding: 20px 56px 40px;
 }
 .console-welcome p {
   max-width: 30ch;
@@ -2272,7 +2271,7 @@ input {
   min-height: 62px;
   padding: 14px 36px 14px;
   border-top: 1px dashed color-mix(in srgb, var(--screen-fg) 30%, transparent);
-  background: color-mix(in srgb, var(--screen-fg) 5%, transparent);
+  background: color-mix(in srgb, var(--screen-fg) 0%, transparent);
   font-family: var(--pixel);
   font-size: 26px;
   line-height: 34px;
@@ -2318,8 +2317,7 @@ input {
   margin-left: 1px;
   vertical-align: -4px;
   background: var(--screen-fg);
-  box-shadow: 0 0 8px var(--screen-fg);
-  animation: blink 1s steps(1) infinite;
+  box-shadow: 0 0 2px var(--screen-fg);
 }
 .console-placeholder {
   margin-left: 10px;
@@ -2353,11 +2351,17 @@ input {
   background: color-mix(in srgb, var(--screen-fg) 9%, transparent);
 }
 
+.console-screen:focus-within .console-block {
+  animation: blink 1s steps(1) infinite;
+}
+
+
 /* Bottom deck */
 .console-deck {
   display: flex;
   align-items: center;
   gap: 18px;
+  padding-bottom: 10px;
 }
 .console-tuner {
   display: flex;
