@@ -29,6 +29,7 @@ type Theme = "light" | "dark";
 
 const firstName = profile.name.split(" ")[0];
 const assistantName = `Ask${firstName}`;
+const welcomeText = `Hi! I am a friendly Chatbot designed to answer your burning questions about ${firstName}'s profile.\n\nAsk me anything!`;
 
 // Phosphor colours the knob cycles through.
 const screenModes = [
@@ -93,6 +94,7 @@ export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isResponding, setIsResponding] = useState(false);
+  const [welcomeCharacters, setWelcomeCharacters] = useState(0);
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const readBodyRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -121,6 +123,40 @@ export default function Home() {
   const currentTurn = turns[turnIndex];
   const currentAnswer = currentTurn?.answer;
   const isWaiting = isResponding && turnIndex === turns.length - 1;
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let interval: number | undefined;
+
+    const finishTyping = () => {
+      if (interval !== undefined) window.clearInterval(interval);
+      setWelcomeCharacters(welcomeText.length);
+    };
+    const handleMotionChange = (event: MediaQueryListEvent) => {
+      if (event.matches) finishTyping();
+    };
+
+    if (reducedMotion.matches) {
+      setWelcomeCharacters(welcomeText.length);
+    } else {
+      interval = window.setInterval(() => {
+        setWelcomeCharacters((current) => {
+          const next = Math.min(current + 1, welcomeText.length);
+          if (next === welcomeText.length && interval !== undefined) {
+            window.clearInterval(interval);
+          }
+          return next;
+        });
+      }, 24);
+    }
+
+    reducedMotion.addEventListener("change", handleMotionChange);
+
+    return () => {
+      if (interval !== undefined) window.clearInterval(interval);
+      reducedMotion.removeEventListener("change", handleMotionChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isResponding && messages.at(-1)?.from === "assistant") {
@@ -419,7 +455,15 @@ export default function Home() {
                     </>
                   ) : (
                     <div className="console-welcome">
-                      <p>Hi! I am a friendly Chatbot designed to answer your burning questions about {firstName}&apos;s profile. <br/><br/>Ask me anything!</p>
+                      <p>
+                        <span className="visually-hidden">{welcomeText}</span>
+                        <span className="console-welcome-typed" aria-hidden="true">
+                          {welcomeText.slice(0, welcomeCharacters)}
+                          {welcomeCharacters < welcomeText.length && (
+                            <span className="console-welcome-caret">█</span>
+                          )}
+                        </span>
+                      </p>
                     </div>
                   )}
 
