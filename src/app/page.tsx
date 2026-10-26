@@ -3,7 +3,9 @@
 import Image from "next/image";
 import {
   type CSSProperties,
-  type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type SyntheticEvent,
   Fragment,
   useEffect,
   useRef,
@@ -21,6 +23,7 @@ import {
 } from "../../lib/portfolio-content";
 
 type ChatMessage = { from: "user" | "assistant"; text: string };
+type Turn = { question: string; answer?: string };
 type PortfolioProject = (typeof projects)[number];
 type Theme = "light" | "dark";
 
@@ -90,29 +93,45 @@ export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isResponding, setIsResponding] = useState(false);
-  const chatInputRef = useRef<HTMLInputElement>(null);
-  const chatStreamRef = useRef<HTMLDivElement>(null);
+  const chatInputRef = useRef<HTMLTextAreaElement>(null);
+  const readBodyRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const [project, setProject] = useState<PortfolioProject | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [screenMode, setScreenMode] = useState(0);
   const [knobTurns, setKnobTurns] = useState(0);
   const [heroInView, setHeroInView] = useState(true);
+  // null = follow the latest question; a number = a past question picked from history.
+  const [pickedTurn, setPickedTurn] = useState<number | null>(null);
+  const [showHelp, setShowHelp] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [caretAtEnd, setCaretAtEnd] = useState(true);
   const theme = useSyncExternalStore(subscribeTheme, readTheme, readServerTheme);
+
+  // Pair each question with the answer that followed it.
+  const turns: Turn[] = [];
+  for (const message of messages) {
+    if (message.from === "user") {
+      turns.push({ question: message.text });
+    } else if (turns.length > 0) {
+      turns[turns.length - 1].answer = message.text;
+    }
+  }
+  const turnIndex = pickedTurn ?? turns.length - 1;
+  const currentTurn = turns[turnIndex];
+  const currentAnswer = currentTurn?.answer;
+  const isWaiting = isResponding && turnIndex === turns.length - 1;
 
   useEffect(() => {
     if (!isResponding && messages.at(-1)?.from === "assistant") {
-      chatInputRef.current?.focus();
+      chatInputRef.current?.focus({ preventScroll: true });
     }
   }, [isResponding, messages]);
 
+  // Every answer (or the help page) is read from the top.
   useEffect(() => {
-    if (messages.length === 0) return;
-    chatStreamRef.current?.scrollTo({
-      top: chatStreamRef.current.scrollHeight,
-      behavior: "instant",
-    });
-  }, [messages, isResponding]);
+    readBodyRef.current?.scrollTo({ top: 0, behavior: "instant" });
+  }, [turnIndex, currentAnswer, showHelp]);
 
   // Shows the "Back to chat" button once the assistant has scrolled out of view.
   useEffect(() => {
@@ -143,6 +162,9 @@ export default function Home() {
 
   async function ask(question: string) {
     setMessages((current) => [...current, { from: "user", text: question }]);
+    setPickedTurn(null);
+    setShowHelp(false);
+    setHistoryOpen(false);
     setIsResponding(true);
 
     try {
@@ -185,18 +207,41 @@ export default function Home() {
     }
   }
 
-  function submitChat(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function sendQuestion() {
     const question = input.trim();
-    if (!question) return;
+    if (!question || isResponding) return;
     setInput("");
+    setCaretAtEnd(true);
     void ask(question);
   }
 
-  function askAbout(item: PortfolioProject) {
-    if (isResponding) return;
-    heroRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    void ask(`Tell me about the ${item.title} project.`);
+  function handlePromptKey(event: ReactKeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+      event.preventDefault();
+      sendQuestion();
+    }
+  }
+
+  // The block cursor sits at the end of the text; while editing mid-text the native caret takes over.
+  function trackCaret(event: SyntheticEvent<HTMLTextAreaElement>) {
+    const field = event.currentTarget;
+    setCaretAtEnd(
+      field.selectionStart === field.value.length &&
+        field.selectionEnd === field.value.length
+    );
+  }
+
+  // Clicking anywhere on the screen puts you on the prompt, unless you were selecting text or pressing a control.
+  function focusPrompt(event: ReactMouseEvent<HTMLDivElement>) {
+    if ((event.target as HTMLElement).closest("button, a, textarea")) return;
+    if (window.getSelection()?.toString()) return;
+    chatInputRef.current?.focus({ preventScroll: true });
+  }
+
+  function pickTurn(index: number) {
+    setPickedTurn(index === turns.length - 1 ? null : index);
+    setShowHelp(false);
+    setHistoryOpen(false);
   }
 
   function toggleTheme() {
@@ -229,32 +274,14 @@ export default function Home() {
     "--screen-fg": mode.fg,
     "--screen-bg": mode.bg,
   } as CSSProperties;
+  const pad = (value: number) => String(value).padStart(2, "0");
 
   return (
     <div className="site">
-      {/* ---------- Hero: the AskAtharva unit ---------- */}
-      <section className="hero" id="chat" ref={heroRef}>
-        <div className="wrap">
-          <header className="masthead">
-            <div className="masthead-name">
-              <strong>{profile.name}</strong>
-              <span>Portfolio</span>
-            </div>
-            <a className="key key-sm" href="/resume.pdf" download="resume.pdf">
-              <DownloadIcon />
-              Download resume
-            </a>
-          </header>
-
-          <h1 className="hero-title">
-            Hi, I&apos;m {firstName}. <br/>Ask me anything about my work, or open
-            the classic view.
-          </h1>
-          <p className="hero-sub">
-            {profile.headline}, Based in {profile.location}.
-          </p>
-
-          <div className="unit">
+      {/* ---------- Hero: the AskAtharva console ---------- */}
+      <section className="hero console-hero" id="chat" ref={heroRef}>
+        <div className="console-wrap">
+          <div className="unit console">
             <div className="unit-plate">
               <div className="unit-brand">
                 <Screw className="deco" />
@@ -283,169 +310,229 @@ export default function Home() {
                   <span className="toggle-text">Dark</span>
                   <MoonIcon />
                 </div>
-                <a className="key key-sm" href="#about">
+                <a
+                  className="key key-sm"
+                  href="/resume.pdf"
+                  download="resume.pdf"
+                  aria-label="Download resume (PDF)"
+                >
+                  <DownloadIcon />
+                  <span className="hide-narrow">Resume PDF</span>
+                </a>
+                <a className="key key-classic" href="#about">
+                  <span className="classic-dot" aria-hidden="true" />
                   Classic view
-                  <ArrowDownIcon />
+                  <span className="classic-arrow">
+                    <ArrowDownIcon />
+                  </span>
                 </a>
                 <Screw className="deco" flip />
               </div>
             </div>
 
-            <div className="unit-body">
-              <div className="unit-main">
-                <div className="bezel">
-                  <div className="screen" style={screenStyle}>
-                    <div className="screen-header" aria-hidden="true">
-                      <span>
-                        {assistantName.toUpperCase()}
-                        <span className="screen-header-extra"> {"//"} PORTFOLIO OS</span>
-                      </span>
-                      <span>MODE {mode.name}</span>
-                    </div>
-                    <div
-                      className="screen-log"
-                      ref={chatStreamRef}
-                      aria-live="polite"
-                    >
-                      {messages.length === 0 && (
-                        <>
-                          <div className="screen-msg assistant">
-                            <span className="screen-tag">{"AI>"}</span>
-                            <div className="screen-text">
-                              <p>
-                                Boot OK. I know everything on {firstName}&apos;s
-                                resume: research, projects, experience,
-                                education and publications. Ask me anything.
-                              </p>
-                            </div>
-                          </div>
-                          <p className="screen-hint">
-                            No menus, no buttons. Just ask, e.g. &ldquo;What did{" "}
-                            {firstName} build at Goalist?&rdquo;
-                          </p>
-                        </>
-                      )}
-                      {messages.map((message, index) => (
-                        <div
-                          className={`screen-msg ${message.from}`}
-                          key={`${message.from}-${index}`}
-                        >
-                          <span className="screen-tag">
-                            {message.from === "assistant" ? "AI>" : "<YOU"}
-                          </span>
-                          <div className="screen-text">
-                            {message.from === "assistant" ? (
-                              <ReactMarkdown>{message.text}</ReactMarkdown>
-                            ) : (
-                              <p>{message.text}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      <p className="screen-cursor-line">
-                        {isResponding && (
-                          <span role="status">{"AI> searching the resume "}</span>
-                        )}
-                        <span className="screen-cursor" aria-hidden="true">
-                          █
-                        </span>
-                      </p>
-                    </div>
-                    <div className="screen-scanlines" aria-hidden="true" />
-                  </div>
-                </div>
-
-                <form className="ask-row" id="ask-form" onSubmit={submitChat}>
-                  <label htmlFor="chatinputbox">Ask</label>
-                  <input
-                    id="chatinputbox"
-                    ref={chatInputRef}
-                    value={input}
-                    onChange={(event) => setInput(event.target.value)}
-                    placeholder={`Anything about ${firstName}: research, projects, experience…`}
-                    autoComplete="off"
-                    disabled={isResponding}
-                  />
-                  <button
-                    className="key key-accent send-inline"
-                    type="submit"
-                    aria-label="Send question"
-                    disabled={isResponding || !input.trim()}
-                  >
-                    <SendIcon />
-                  </button>
-                </form>
-              </div>
-
-              <div className="unit-side">
-                <div className="side-speaker deco">
-                  <SpeakerGrille />
-                  <div className="leds">
-                    <span>
-                      <i className="led led-on" />
-                      PWR
-                    </span>
-                    <span>
-                      <i className={`led ${isResponding ? "led-busy" : ""}`} />
-                      BUSY
-                    </span>
-                  </div>
-                </div>
-
-                <div className="side-tuner">
-                  <button
-                    className="knob"
-                    type="button"
-                    onClick={turnKnob}
-                    aria-label={`Change screen colour (now ${mode.name})`}
-                    style={{ transform: `rotate(${knobTurns * 120}deg)` }}
-                  >
-                    <i />
-                  </button>
-                  <div className="tuner-readout">
-                    <div className="tuner-label">
-                      <strong>SCREEN</strong>
-                      <span>{mode.name}</span>
-                    </div>
-                    <div
-                      className={`meter${isResponding ? " is-busy" : ""}`}
-                      aria-hidden="true"
-                    >
-                      {meterLevels.map((level, index) => (
-                        <i
-                          key={index}
-                          style={
-                            {
-                              "--level": level,
-                              "--delay": `${index * 0.05}s`,
-                              "--speed": `${0.35 + level * 0.4}s`,
-                              background: index > 10 ? "var(--accent)" : mode.fg,
-                            } as CSSProperties
-                          }
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="guide deco">
-                  <strong>Operating guide</strong>
-                  <span>1. Type any question about {firstName}</span>
-                  <span>2. Press send or Enter</span>
-                  <span>3. Turn the knob to retune the screen</span>
-                  <span>4. Open the classic view to scroll</span>
-                </div>
-
-                <button
-                  className="key key-accent send-side"
-                  type="submit"
-                  form="ask-form"
-                  disabled={isResponding || !input.trim()}
+            <div className="console-bezel">
+              <div className="console-screen" style={screenStyle} onClick={focusPrompt}>
+                <nav
+                  className={`console-rail${historyOpen ? " is-open" : ""}`}
+                  aria-label="Question history"
                 >
-                  SEND
-                  <ReturnIcon />
-                </button>
+                  <h2>
+                    <span>HISTORY</span>
+                    <span>{pad(turns.length)}</span>
+                  </h2>
+                  {turns.length === 0 && (
+                    <p className="console-rail-empty">Your questions will appear here.</p>
+                  )}
+                  {turns.map((turn, index) => (
+                    <button
+                      className={`console-item${!showHelp && index === turnIndex ? " is-active" : ""}`}
+                      type="button"
+                      key={`${index}-${turn.question}`}
+                      onClick={() => pickTurn(index)}
+                      aria-current={!showHelp && index === turnIndex ? "true" : undefined}
+                    >
+                      <small>{pad(index + 1)}</small>
+                      {turn.question}
+                    </button>
+                  ))}
+                </nav>
+
+                <div className="console-read">
+                  {showHelp ? (
+                    <>
+                      <div className="console-read-head">
+                        <span className="console-read-title">HELP.TXT</span>
+                        <small>PRINTED ON REQUEST</small>
+                      </div>
+                      <div className="console-read-body" ref={readBodyRef}>
+                        <div className="console-answer">
+                          <p className="console-print-title">HOW TO USE {assistantName.toUpperCase()}</p>
+                          <ol>
+                            <li>
+                              Type any question about {firstName}&apos;s work,
+                              research, projects or experience. Plain English is fine.
+                            </li>
+                            <li>Press SEND or Enter. The answer prints here, starting from the top.</li>
+                            <li>
+                              Every question you ask is saved in HISTORY. Click
+                              one to read its answer again.
+                            </li>
+                            <li>Turn the knob to switch the screen between green, amber and ice.</li>
+                            <li>
+                              Prefer to browse? Classic view opens the full
+                              portfolio, and Resume PDF downloads the resume.
+                            </li>
+                          </ol>
+                        </div>
+                      </div>
+                    </>
+                  ) : currentTurn ? (
+                    <>
+                      <div className="console-read-head">
+                        <span className="console-read-title">
+                          {"YOU> "}
+                          {currentTurn.question}
+                        </span>
+                        <small>
+                          ANSWER {pad(turnIndex + 1)} / {pad(turns.length)}
+                        </small>
+                        <button
+                          className="console-history-toggle"
+                          type="button"
+                          onClick={() => setHistoryOpen((open) => !open)}
+                          aria-expanded={historyOpen}
+                        >
+                          HISTORY {pad(turns.length)}
+                        </button>
+                      </div>
+                      <div className="console-read-body" ref={readBodyRef} aria-live="polite">
+                        {isWaiting || currentAnswer === undefined ? (
+                          <p className="console-thinking" role="status">
+                            {"AI> searching the resume…"}
+                          </p>
+                        ) : (
+                          <div className="console-answer">
+                            <ReactMarkdown>{currentAnswer}</ReactMarkdown>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="console-welcome">
+                      <p>Ask me anything about {firstName}&apos;s work.</p>
+                    </div>
+                  )}
+
+                  <div className="console-prompt">
+                    <span className="console-prompt-tag" aria-hidden="true">
+                      {"YOU>"}
+                    </span>
+                    {isResponding ? (
+                      <span className="console-prompt-busy" role="status">
+                        {"AI> searching the resume…"}
+                      </span>
+                    ) : (
+                      <div className={`console-field${caretAtEnd ? "" : " is-editing"}`}>
+                        <div className="console-mirror" aria-hidden="true">
+                          <span className="console-ghost">{input}</span>
+                          <span className="console-block" />
+                          {!input && (
+                            <span className="console-placeholder">
+                              type a question
+                              <span className="hide-narrow"> about {firstName}</span>…
+                            </span>
+                          )}
+                        </div>
+                        <textarea
+                          id="chatinputbox"
+                          ref={chatInputRef}
+                          value={input}
+                          rows={1}
+                          maxLength={400}
+                          onChange={(event) => {
+                            setInput(event.target.value.replace(/\n/g, " "));
+                            trackCaret(event);
+                          }}
+                          onKeyDown={handlePromptKey}
+                          onSelect={trackCaret}
+                          onKeyUp={trackCaret}
+                          onBlur={() => setCaretAtEnd(true)}
+                          aria-label={`Ask a question about ${firstName}`}
+                          autoComplete="off"
+                          spellCheck={false}
+                        />
+                      </div>
+                    )}
+                    <span className="console-prompt-hint" aria-hidden="true">
+                      ENTER ↵
+                    </span>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <div className="console-deck">
+              <div className="console-tuner">
+                <button
+                  className="knob"
+                  type="button"
+                  onClick={turnKnob}
+                  aria-label={`Change screen colour (now ${mode.name})`}
+                  style={{ transform: `rotate(${knobTurns * 120}deg)` }}
+                >
+                  <i />
+                </button>
+                <div className="tuner-readout">
+                  <div className="tuner-label">
+                    <strong>SCREEN</strong>
+                    <span>{mode.name}</span>
+                  </div>
+                  <div className={`meter${isResponding ? " is-busy" : ""}`} aria-hidden="true">
+                    {meterLevels.map((level, index) => (
+                      <i
+                        key={index}
+                        style={
+                          {
+                            "--level": level,
+                            "--delay": `${index * 0.05}s`,
+                            "--speed": `${0.35 + level * 0.4}s`,
+                            background: index > 10 ? "var(--accent)" : mode.fg,
+                          } as CSSProperties
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="leds">
+                <span>
+                  <i className="led led-on" />
+                  PWR
+                </span>
+                <span>
+                  <i className={`led ${isResponding ? "led-busy" : ""}`} />
+                  BUSY
+                </span>
+              </div>
+              <span className="console-spacer" aria-hidden="true" />
+              <button
+                className={`key console-help${showHelp ? " is-on" : ""}`}
+                type="button"
+                onClick={() => setShowHelp((open) => !open)}
+                aria-pressed={showHelp}
+              >
+                <HelpIcon />
+                HELP
+              </button>
+              <button
+                className="key key-accent console-send"
+                type="button"
+                onClick={sendQuestion}
+                disabled={isResponding || !input.trim()}
+              >
+                SEND
+                <ReturnIcon />
+              </button>
             </div>
 
             <div className="unit-footer">
@@ -863,26 +950,6 @@ function Screw({ className, flip }: { className?: string; flip?: boolean }) {
   );
 }
 
-function SpeakerGrille() {
-  const rows = [0, 1, 2, 3];
-  return (
-    <svg aria-hidden="true" width="132" height="76" viewBox="0 0 132 76">
-      <g fill="var(--grille)">
-        {rows.map((row) =>
-          Array.from({ length: row % 2 === 0 ? 7 : 6 }, (_, col) => (
-            <circle
-              key={`${row}-${col}`}
-              cx={(row % 2 === 0 ? 6 : 16) + col * 20}
-              cy={6 + row * 21}
-              r="4"
-            />
-          ))
-        )}
-      </g>
-    </svg>
-  );
-}
-
 const iconProps = {
   width: 18,
   height: 18,
@@ -932,14 +999,6 @@ function DetailsIcon() {
   );
 }
 
-function ChatIcon() {
-  return (
-    <svg {...iconProps} width={16} height={16} strokeWidth={2}>
-      <path d="M4 5h16v11H9l-5 4z" />
-    </svg>
-  );
-}
-
 function PinIcon() {
   return (
     <svg {...iconProps} width={14} height={14} strokeWidth={2}>
@@ -971,6 +1030,16 @@ function MoonIcon() {
   return (
     <svg {...iconProps} width={16} height={16} className="toggle-icon">
       <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+    </svg>
+  );
+}
+
+function HelpIcon() {
+  return (
+    <svg {...iconProps} width={16} height={16}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6" />
+      <path d="M12 17h.01" />
     </svg>
   );
 }
