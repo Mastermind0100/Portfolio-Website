@@ -159,13 +159,13 @@
     "id": "education-master-of-science-in-computer-control-and-automation-nanyang-technological-university-27",
     "section": "Education",
     "topic": "Master of Science in Computer Control and Automation — Nanyang Technological University",
-    "text": "**August 2023 – July 2025**  \r\nSingapore\r\n\r\nDegree: MSc in Computer Control and Automation.\r\n\r\n---"
+    "text": "**August 2023 – July 2025**  \r\nSingapore\r\nStatus: Graduated\r\nDegree: MSc in Computer Control and Automation.\r\n\r\n---"
   },
   {
     "id": "education-bachelor-of-technology-in-electrical-and-electronics-engineering-vellore-institute-of-technology-28",
     "section": "Education",
     "topic": "Bachelor of Technology in Electrical and Electronics Engineering — Vellore Institute of Technology",
-    "text": "**July 2017 – June 2021**  \r\nVellore, India\r\n\r\nDegree: B.Tech in Electrical and Electronics Engineering.\r\n\r\n---"
+    "text": "**July 2017 – June 2021**  \r\nVellore, India\r\nStatus: Graduated\r\nDegree: B.Tech in Electrical and Electronics Engineering.\r\n\r\n---"
   },
   {
     "id": "technical-skills-llm-generative-ai-29",
@@ -196,5 +196,11 @@
     "section": "Professional Interests",
     "topic": "Professional Interests",
     "text": "Atharva's technical interests include:\r\n\r\n- Artificial Intelligence\r\n- Large Language Models\r\n- AI Agents\r\n- Retrieval-Augmented Generation\r\n- AI Safety and Alignment\r\n- Multimodal AI\r\n- Computer Vision\r\n- Machine Learning Systems\r\n- ML Infrastructure\r\n- Model Performance and Optimization\r\n- Reinforcement Learning\r\n- Medical AI\r\n- Generative AI"
+  },
+  {
+    "id": "hobbies-and-personal-interests-hobbies-and-personal-interests-34",
+    "section": "Hobbies and Personal Interests",
+    "topic": "Hobbies and Personal Interests",
+    "text": "Atharva enjoys:\r\n - Playing Guitar\r\n - Travelling and Exploring new cultures\r\n - Reading Science Fiction and Fantasy novels\r\n \r\n Atharva is a big fan of:\r\n - Star Wars\r\n - Harry Potter"
   }
 ]

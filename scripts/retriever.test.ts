@@ -14,8 +14,20 @@ test("recognizes resume questions and rejects unrelated questions", () => {
 
 test("briefly acknowledges small talk and redirects to the portfolio", () => {
   assert.match(
+    getSmallTalkReply("Who are you?") ?? "",
+    /Atharva’s portfolio assistant/
+  );
+  assert.match(
+    getSmallTalkReply("What can you help me with?") ?? "",
+    /questions about his background/
+  );
+  assert.match(
     getSmallTalkReply("You know you are awesome right?") ?? "",
     /Thank you!.*Atharva’s portfolio assistant/
+  );
+  assert.match(
+    getSmallTalkReply("What's up?") ?? "",
+    /Atharva’s portfolio/
   );
   assert.match(
     getSmallTalkReply("How are you?") ?? "",

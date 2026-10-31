@@ -322,8 +322,8 @@ export default function Home() {
               <div className="unit-brand">
                 <Screw className="deco" />
                 <span className="unit-name">{assistantName}</span>
-                <span className="unit-model">Portfolio assistant</span>
-                <span className="unit-badge">TALKS</span>
+                <span className="unit-badge">Portfolio Chatbot</span>
+
               </div>
               <div className="unit-controls">
                 <div className="toggle-group">
@@ -644,9 +644,7 @@ export default function Home() {
                     >
                       <span className="project-category">{item.category}</span>
                       <span className="project-title">{item.title}</span>
-                      <span className="project-open" aria-hidden="true">
-                        Open details
-                      </span>
+
                     </button>
                     <div className="project-body">
                       <span className="project-status">{item.status}</span>
@@ -771,7 +769,7 @@ export default function Home() {
           <div className="wrap">
             <SectionHeading
               title="Publications"
-              note={`${publications.length} papers`}
+              note={`${publications.length}/11 papers`}
             />
             <div className="pub-list">
               {publicationsByYear.map((publication) => (
@@ -807,7 +805,7 @@ export default function Home() {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        arXiv
+                        URL
                         <ExternalIcon />
                       </a>
                     )}
@@ -815,6 +813,14 @@ export default function Home() {
                 </article>
               ))}
             </div>
+            <a
+              className="text-link"
+              href={"https://scholar.google.com/citations?user=pIEQA98AAAAJ&hl=en"}
+              target="_blank"
+              rel="noreferrer"
+            >
+              More papers on Google Scholar
+            </a>
           </div>
         </section>
 

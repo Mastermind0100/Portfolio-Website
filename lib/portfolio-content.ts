@@ -326,6 +326,7 @@ export const publications = [
     authors:
       "Hsu, J., D'Cunha, R. L., Choi, A., Zhu, M., Haystead, A., Hudlikar, A., et al.",
     venue: "Investigative Ophthalmology & Visual Science, 67(7), 3582 (2026)",
+    url: "https://iovs.arvojournals.org/article.aspx?articleid=2812392",
   },
   {
     title: "A Novel Chaotic System for Text Encryption Optimized with Genetic Algorithm",
@@ -334,10 +335,10 @@ export const publications = [
     doi: "10.14569/IJACSA.2020.0111005",
   },
   {
-    title: "Scytale — An Evolutionary Cryptosystem",
-    authors: "Menon, U., Hudlikar, A., & Panda, D.",
-    venue: "International Journal of Computer Science and Network, 9(4), 153–159 (2020)",
-    url: "https://arxiv.org/abs/2008.05290",
+    title: "Novel View Synthesis based Depth Perception for Robotic Arm Control",
+    authors: "Hudlikar, A.",
+    venue: "Digital Repository of Nanyang Technological University, Singapore (2025)",
+    url: "https://dr.ntu.edu.sg/entities/publication/0cc5c50e-7b87-4a9e-8851-c5827befb7af"
   },
   {
     title: "A Hybrid Autoencoder Architecture for Text Encryption",

@@ -283,7 +283,7 @@ Topics: Autoencoders, Cryptography, Text Encryption, Deep Learning.
 
 **August 2023 – July 2025**  
 Singapore
-
+Status: Graduated
 Degree: MSc in Computer Control and Automation.
 
 ---
@@ -292,7 +292,7 @@ Degree: MSc in Computer Control and Automation.
 
 **July 2017 – June 2021**  
 Vellore, India
-
+Status: Graduated
 Degree: B.Tech in Electrical and Electronics Engineering.
 
 ---
@@ -360,3 +360,13 @@ Atharva's technical interests include:
 - Reinforcement Learning
 - Medical AI
 - Generative AI
+
+# Hobbies and Personal Interests
+ Atharva enjoys:
+ - Playing Guitar
+ - Travelling and Exploring new cultures
+ - Reading Science Fiction and Fantasy novels
+ 
+ Atharva is a big fan of:
+ - Star Wars
+ - Harry Potter

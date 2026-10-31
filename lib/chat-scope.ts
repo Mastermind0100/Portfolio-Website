@@ -1,7 +1,13 @@
 const resumeContextTerms =
-  /\b(?:atharva|he|him|his|resume|profile|portfolio|education|degree|university|school|stud(?:y|ies|ied)|experience|career|employer|project|publication|paper|skill|expertise|research|achievement|award|intern(?:ship)?|robot(?:ics)?|llm|rag|retrieval|agentic|multimodal|computer vision|machine learning|artificial intelligence|this guy)\b/i;
+  /\b(?:atharva|he|guy|dude|him|his|resume|profile|portfolio|education|degree|university|school|hobbies|interests|stud(?:y|ies|ied)|experience|career|employer|project|publication|paper|skill|expertise|research|achievement|award|intern(?:ship)?|robot(?:ics)?|llm|rag|retrieval|agentic|multimodal|computer vision|machine learning|artificial intelligence)\b/i;
 
 const smallTalkReplies = [
+  {
+    pattern:
+      /^(?:who are you|what are you|what(?:'s| is) your name|who am i talking to|who(?:'s| is) this|what can you do|what can you help(?: me)? with)$/,
+    reply:
+      "I’m Atharva’s portfolio assistant. I can answer questions about his background, experience, projects, education, skills, and publications.",
+  },
   {
     pattern:
       /^(?:hi|hello|hey|howdy|good morning|good afternoon|good evening)(?: there)?$/,
